@@ -1,0 +1,6 @@
+.app-content {
+  display: grid;
+  height: 100%;
+
+  grid-template-rows: 48px 1fr;
+}
