@@ -4,7 +4,7 @@ import { useState } from "react";
 import "./DMTOMAX.css";
 
 export default function DMTOMAX() {
-  const [selectedTab, setTab] = useState(null);
+  const [selectedTab, setTab] = useState(DMTOMAXTabs[0]);
 
   return (
     <div className="app-content">
