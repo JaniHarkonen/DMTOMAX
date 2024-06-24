@@ -1,8 +1,10 @@
 const electron = require("electron");
-const { app, BrowserWindow } = electron;
+const { app, BrowserWindow, ipcMain, dialog } = electron;
 const path = require("path");
 const url = require("url");
+const fs = require("fs");
 const { attachDialogHandler } = require("../src/ipc/attachDialogHandler");
+const { attachConfigHandler, attachJsonHandler } = require("../src/ipc/attachJsonHandler");
  
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -45,4 +47,5 @@ app.on("window-all-closed", function () {
   }
 });
 
-attachDialogHandler(electron);  // Attach an ipc handle for file system dialog
+attachDialogHandler(ipcMain, dialog);  // File system dialog handle
+attachJsonHandler(ipcMain, fs);  // Config read/writer handle
