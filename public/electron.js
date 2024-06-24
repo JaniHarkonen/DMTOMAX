@@ -1,6 +1,8 @@
-const { app, BrowserWindow, protocol } = require("electron");
+const electron = require("electron");
+const { app, BrowserWindow } = electron;
 const path = require("path");
 const url = require("url");
+const { attachDialogHandler } = require("../src/ipc/attachDialogHandler");
  
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -9,7 +11,6 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
-      //preload: path.join(__dirname, "preload.js"),
     },
   });
 
@@ -27,21 +28,6 @@ function createWindow() {
   }
 }
 
-// Setup a local proxy to adjust the paths of requested files when loading
-// them from the local production bundle (e.g.: local fonts, etc...).
-/*function setupLocalFilesNormalizerProxy() {
-  protocol.registerHttpProtocol(
-    "file",
-    (request, callback) => {
-      const url = request.url.substr(8);
-      callback({ path: path.normalize(`${__dirname}/${url}`) });
-    },
-    (error) => {
-      if (error) console.error("Failed to register protocol");
-    },
-  );
-}*/
-
 app.whenReady().then(() => {
   createWindow();
   setupLocalFilesNormalizerProxy();
@@ -58,17 +44,5 @@ app.on("window-all-closed", function () {
     app.quit();
   }
 });
- 
-// If your app has no need to navigate or only needs to navigate to known pages,
-// it is a good idea to limit navigation outright to that known scope,
-// disallowing any other kinds of navigation.
-const allowedNavigationDestinations = "https://my-electron-app.com";
-app.on("web-contents-created", (event, contents) => {
-  contents.on("will-navigate", (event, navigationUrl) => {
-    const parsedUrl = new URL(navigationUrl);
- 
-    if (!allowedNavigationDestinations.includes(parsedUrl.origin)) {
-      event.preventDefault();
-    }
-  });
-});
+
+attachDialogHandler(electron);  // Attach an ipc handle for file system dialog
