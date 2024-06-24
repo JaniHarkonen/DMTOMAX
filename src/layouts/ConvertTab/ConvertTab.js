@@ -1,22 +1,41 @@
 import { useState } from "react";
-import { FilesysDialogSettings, showOpenFile, showSaveFile } from "../../api/fileSystemDialog";
+import { FilesysDialogSettings, showOpenFile } from "../../api/fileSystemDialog";
 import FileTable from "../../components/FileTable/FileTable";
 import { Entry } from "../../components/FileTableEntry/FileTableEntry";
 import FixControls from "../../components/FixControls/FixControls";
+import fixFiles from "../../service/fixFiles";
 
 export default function ConvertTab(props) {
-  const [fileEntries, setFileEntries] = useState([
-    Entry("C:/users/User/Desktop/motion.bvh", false),
-    Entry("C:/users/User/Desktop/motion2.bvh", false)
-  ]);
+  const [fileEntries, setFileEntries] = useState([]);
 
-  const importFiles = () => {
+  const handleImportFiles = () => {
     const settings = FilesysDialogSettings();
     settings.multiSelections = true;
     showOpenFile(settings, (response) => {
-      if( !response.cancelled )
+      if( !response.canceled )
       setFileEntries(response.filePaths.map((file) => Entry(file, false)));
     });
+  };
+
+  const handleFixFiles = (entries) => {
+    fixFiles(entries.map((entry) => entry.filePath));
+  };
+
+  const handleRemoveFiles = (entries) => {
+    const filteredEntries = [];
+    let removePointer = 0;
+    let currentPointer = 0;
+
+    while( currentPointer < fileEntries.length ) {
+      if( fileEntries[currentPointer] === entries[removePointer] )
+      removePointer++;
+      else
+      filteredEntries.push(fileEntries[currentPointer]);
+
+      currentPointer++;
+    }
+
+    setFileEntries(filteredEntries);
   };
 
   const renderControls = (
@@ -27,9 +46,10 @@ export default function ConvertTab(props) {
       <FixControls
         getAllEntries={getAllEntries}
         getSelectedEntries={getSelectedEntries}
-        onImport={() => importFiles()}
-        onFix={(entries) => { console.log("fixing..."); console.log(entries.map((entry) => entry)); console.log(process.cwd()) }}
-        onRemove={(entries) => { console.log("removing from list..."); console.log(entries.map((entry) => entry)); }}
+        onImport={handleImportFiles}
+        //onFix={(entries) => { console.log("fixing..."); console.log(entries.map((entry) => entry)); console.log(process.cwd()) }}
+        onFix={handleFixFiles}
+        onRemove={handleRemoveFiles}
       />
     );
   };
