@@ -73,7 +73,7 @@ export class Config {
   }
 
   loadConfig(callback) {
-    const executeCallback = () => {
+    const readJsonAfterEnsure = () => {
       ipcRenderer.invoke(
         "read-json", this.configurationPath
       ).then((json) => callback(JSON.parse(json)));
@@ -83,7 +83,7 @@ export class Config {
       "ensure-json-exists", 
       this.configurationPath, 
       DEFAULT_CONFIGURATION_SCHEMA
-    ).then(executeCallback, executeCallback);
+    ).then(readJsonAfterEnsure, readJsonAfterEnsure);
   }
 
   setConfig(configJson) {
@@ -95,7 +95,11 @@ export class Config {
 
     if( this.configuration === null ) {
       this.configuration = DEFAULT_CONFIGURATION_SCHEMA;
-      this.loadConfig((json) => this.update(json));
+      this.loadConfig((json) => {
+        this.stopFileUpdates(true);
+        this.update(json);
+        this.stopFileUpdates(false);
+      });
     }
     else
     callback({ configuration: this.configuration });
@@ -105,14 +109,17 @@ export class Config {
     delete this.subscribers[id];
   }
 
-  update(updatedFields) {
-    this.configuration = {
-      ...this.configuration,
-      ...updatedFields
-    };
-
+  update(newConfig) {
+    this.configuration = newConfig;
     this.updateFile();
     this.notifySubscribers();
+  }
+
+  updateMappings(mappings) {
+    this.update({
+      ...this.configuration,
+      mappings
+    });
   }
 
   notifySubscribers() {
@@ -127,10 +134,10 @@ export class Config {
     if( this.skipFileUpdates === true )
     return;
 
-    // update config here
+    ipcRenderer.invoke("write-json", this.configurationPath, this.configuration);
   }
 
-  stopFileUpdates() {
-    this.skipFileUpdates = true;
+  stopFileUpdates(skipFlag) {
+    this.skipFileUpdates = skipFlag;
   }
 }
