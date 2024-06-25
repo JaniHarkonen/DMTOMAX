@@ -1,5 +1,4 @@
-function attachDialogHandler(electron) {
-  const { ipcMain, dialog } = electron;
+function attachDialogHandler(ipcMain, dialog) {
   
   ipcMain.handle("open-filesys-dialog", async (event, settings) => {
     return dialog.showOpenDialog(null, {
