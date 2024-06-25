@@ -10,7 +10,7 @@ export default function MappingsTab(props) {
   useEffect(() => {
     config.subscribe(CONFIG_SUBSCRIPTION_ID, setMappings);
     return () => config.unsubscribe(CONFIG_SUBSCRIPTION_ID);
-  });
+  }, []);
 
   return (
     <div>

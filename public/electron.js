@@ -2,9 +2,9 @@ const electron = require("electron");
 const { app, BrowserWindow, ipcMain, dialog } = electron;
 const path = require("path");
 const url = require("url");
-const fs = require("fs");
+const fsPromises = require("fs").promises;
 const { attachDialogHandler } = require("../src/ipc/attachDialogHandler");
-const { attachConfigHandler, attachJsonHandler } = require("../src/ipc/attachJsonHandler");
+const { attachJsonHandler } = require("../src/ipc/attachJsonHandler");
  
 function createWindow() {
   const mainWindow = new BrowserWindow({
@@ -48,4 +48,4 @@ app.on("window-all-closed", function () {
 });
 
 attachDialogHandler(ipcMain, dialog);  // File system dialog handle
-attachJsonHandler(ipcMain, fs);  // Config read/writer handle
+attachJsonHandler(ipcMain, fsPromises);  // Config read/writer handle

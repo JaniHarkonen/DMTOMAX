@@ -73,13 +73,17 @@ export class Config {
   }
 
   loadConfig(callback) {
+    const executeCallback = () => {
+      ipcRenderer.invoke(
+        "read-json", this.configurationPath
+      ).then((json) => callback(JSON.parse(json)));
+    };
+
     ipcRenderer.invoke(
-      "load-json", 
-      null, 
+      "ensure-json-exists", 
       this.configurationPath, 
-      callback, 
       DEFAULT_CONFIGURATION_SCHEMA
-    );
+    ).then(executeCallback, executeCallback);
   }
 
   setConfig(configJson) {
@@ -112,10 +116,11 @@ export class Config {
   }
 
   notifySubscribers() {
-    for( let id of Object.keys(this.subscribers) )
-    this.subscribers[id].callback({
-      configuration: this.configuration
-    });
+    for( let id of Object.keys(this.subscribers) ) {
+      this.subscribers[id]({
+        configuration: this.configuration
+      });
+    }
   }
 
   updateFile() {
