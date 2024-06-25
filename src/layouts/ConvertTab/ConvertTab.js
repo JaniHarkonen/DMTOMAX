@@ -1,12 +1,23 @@
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { FilesysDialogSettings, showOpenFile } from "../../api/fileSystemDialog";
 import FileTable from "../../components/FileTable/FileTable";
 import { Entry } from "../../components/FileTableEntry/FileTableEntry";
 import FixControls from "../../components/FixControls/FixControls";
-import fixFiles from "../../service/fixFiles";
+import { fixFiles } from "../../api/fixer";
+import { GlobalContext } from "../../context/GlobalContext";
+import { DEFAULT_CONFIGURATION_SCHEMA } from "../../api/configuration";
+
+const CONFIG_SUBSCRIPTION_ID = "convert-tab";
 
 export default function ConvertTab(props) {
   const [fileEntries, setFileEntries] = useState([]);
+  const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
+  const { config } = useContext(GlobalContext);
+
+  useEffect(() => {
+    config.subscribe(CONFIG_SUBSCRIPTION_ID, (data) => setMappings(data.configuration.mappings));
+    return () => config.unsubscribe(CONFIG_SUBSCRIPTION_ID);
+  }, []);
 
   const handleImportFiles = () => {
     const settings = FilesysDialogSettings();
@@ -18,7 +29,16 @@ export default function ConvertTab(props) {
   };
 
   const handleFixFiles = (entries) => {
-    fixFiles(entries.map((entry) => entry.filePath));
+    if( entries.length == 0 )
+    return;
+
+    const promises = fixFiles(
+      entries.map((entry) => entry.filePath),
+      "C:\\Users\\User\\Desktop\\DUMP\\",
+      mappings
+    );
+    console.log(promises);
+    Promise.all([...promises]).then((value) => console.log(value));
   };
 
   const handleRemoveFiles = (entries) => {
@@ -47,7 +67,6 @@ export default function ConvertTab(props) {
         getAllEntries={getAllEntries}
         getSelectedEntries={getSelectedEntries}
         onImport={handleImportFiles}
-        //onFix={(entries) => { console.log("fixing..."); console.log(entries.map((entry) => entry)); console.log(process.cwd()) }}
         onFix={handleFixFiles}
         onRemove={handleRemoveFiles}
       />

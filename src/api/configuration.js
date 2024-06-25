@@ -1,5 +1,3 @@
-const ipcRenderer = window.require("electron").ipcRenderer;
-
 export const DEFAULT_CONFIGURATION_SCHEMA = {
   "mappings": {
     "spine_JNT": "Chest",
@@ -65,7 +63,8 @@ export const DEFAULT_CONFIGURATION_SCHEMA = {
 };
 
 export class Config {
-  constructor(configurationPath) {
+  constructor(ipcRenderer, configurationPath) {
+    this.ipcRenderer = ipcRenderer;
     this.subscribers = {};
     this.configuration = null;
     this.configurationPath = configurationPath;
@@ -74,12 +73,12 @@ export class Config {
 
   loadConfig(callback) {
     const readJsonAfterEnsure = () => {
-      ipcRenderer.invoke(
+      this.ipcRenderer.invoke(
         "read-json", this.configurationPath
       ).then((json) => callback(JSON.parse(json)));
     };
 
-    ipcRenderer.invoke(
+    this.ipcRenderer.invoke(
       "ensure-json-exists", 
       this.configurationPath, 
       DEFAULT_CONFIGURATION_SCHEMA
@@ -134,7 +133,7 @@ export class Config {
     if( this.skipFileUpdates === true )
     return;
 
-    ipcRenderer.invoke("write-json", this.configurationPath, this.configuration);
+    this.ipcRenderer.invoke("write-json", this.configurationPath, this.configuration);
   }
 
   stopFileUpdates(skipFlag) {
