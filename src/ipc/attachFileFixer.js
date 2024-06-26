@@ -1,3 +1,13 @@
+function FixResult(wasSuccessful, comment, filePath, outputPath, timeElapsed) {
+  return {
+    wasSuccessful,
+    comment,
+    filePath,
+    outputPath,
+    timeElapsed
+  };
+}
+
 /**
  * Fixes a single file by mapping each joint present in the file to a 
  * corresponding one provided by the `mappings`-JSON. To preserve memory,
@@ -7,7 +17,7 @@
  * write the files using read and write streams provided to us by the `fs`-
  * module.
  * 
- * @param {NodeRequire} fs Reference to the `f`s-module.
+ * @param {NodeRequire} fs Reference to the `fs`-module.
  * @param {NodeRequire} readline Reference to the `readline`-module.
  * @param {string} filePath Path to the file that is to be fixed.
  * @param {string} outputPath Path where the fixed file should go to.
@@ -20,6 +30,7 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
   return new Promise((resolve, reject) => {
     const KEYWORD = "JOINT";
     const END = "MOTION";
+
     const writer = fs.createWriteStream(outputPath, { flags: "w" });
     const reader = readline.createInterface({
       input: fs.createReadStream(filePath),
@@ -60,15 +71,36 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
       writer.write(line + "\n");
     });
 
+    reader.on("error", (err) => {
+      writer.close();
+      resolve(FixResult(
+        false, 
+        "Couldn't read the source file! It may not exist.", 
+        filePath, 
+        outputFile, 
+        performance.now() - time
+      ));
+    });
+
+    writer.on("error", () => {
+      resolve(FixResult(
+        false,
+        "Couldn't write to the output file! Output path may be invalid or the file is used by another process.",
+        filePath,
+        outputFile,
+        performance.now() - time
+      ));
+    })
+
     reader.on("close", () => {
       writer.close();
-      resolve({
-        wasSuccessful: true,
-        comment: "Fixed successfully",
-        filePath,
-        outputPath: outputFile,
-        timeElapsed: performance.now() - time
-      });
+      resolve(FixResult(
+        true, 
+        "Fixed successfully", 
+        filePath, 
+        outputFile, 
+        performance.now() - time
+      ));
     });
   });
 }

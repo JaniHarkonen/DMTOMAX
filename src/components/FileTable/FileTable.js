@@ -75,11 +75,14 @@ export default function FileTable(props) {
     return true;
   };
 
+  console.log(fileEntries);
+
   const renderEntries = (entries) => {
     const entryElements = entries.map((entry, index) => {
       return (
         <FileTableEntry
           key={entry.filePath}
+          status={entry.status}
           isSelected={selections[index]}
           path={entry.filePath}
           onSelect={() => appendSelection([
