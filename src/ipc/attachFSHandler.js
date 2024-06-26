@@ -14,7 +14,7 @@ function attachFSHandler(ipcMain, electron) {
   });
 
   ipcMain.handle("does-path-exist", async (event, path) => {
-    return new Promise((resolve, reject) => fs.exists(path, (flag) => resolve(flag)));
+    return fs.existsSync(path);
   });
 }
 

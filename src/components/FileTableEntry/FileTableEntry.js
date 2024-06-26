@@ -1,4 +1,4 @@
-export const Entry = (filePath, isSelected) => {
+export function Entry(filePath, isSelected) {
   return {
     filePath,
     isSelected

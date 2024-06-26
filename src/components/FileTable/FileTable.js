@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import FileTableEntry from "../FileTableEntry/FileTableEntry";
+import "./FileTable.css";
 
 export const FileTableSelection = (index, isSelected) => {
   return {
@@ -101,19 +102,23 @@ export default function FileTable(props) {
 
   return (
     <div>
-      { fileEntries.length > 0 ? renderEntries(fileEntries) : renderPlaceholder() }
-      {
-        renderControls(
-          () => fileEntries,
-          () => fileEntries.filter((entry, index) => isEntrySelected(index)),
-          () => fileEntries.filter((entry, index) => !isEntrySelected(index)),
-          isEntrySelected,
-          appendSelection,
-          selectAll,
-          deselectAll,
-          areAllSelected
-        )
-      }
+      <div className="file-table-file-list">
+        { fileEntries.length > 0 ? renderEntries(fileEntries) : renderPlaceholder() }
+      </div>
+      <div>
+        {
+          renderControls(
+            () => fileEntries,
+            () => fileEntries.filter((entry, index) => isEntrySelected(index)),
+            () => fileEntries.filter((entry, index) => !isEntrySelected(index)),
+            isEntrySelected,
+            appendSelection,
+            selectAll,
+            deselectAll,
+            areAllSelected
+          )
+        }
+      </div>
     </div>
   );
 }

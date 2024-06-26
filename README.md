@@ -11,3 +11,4 @@
   -- output path
   -- whether the fixing was successful
   -- elapsed time
+- set the appropriate dimensions for the DMTOMAX window

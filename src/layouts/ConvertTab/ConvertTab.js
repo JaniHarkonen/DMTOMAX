@@ -17,6 +17,7 @@ export default function ConvertTab(props) {
   const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
   const [outputPath, setOutputPath] = useState("");
   const [pathExists, setPathExists] = useState(true);
+  const [results, setResults] = useState([]);
   const { config } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -43,8 +44,8 @@ export default function ConvertTab(props) {
       outputPath,
       mappings
     );
-    console.log(promises);
-    //Promise.all([...promises]).then((value) => console.log(value));
+
+    Promise.all(promises).then((value) => console.log(value));
   };
 
   const handleRemoveFiles = (entries) => {
@@ -75,7 +76,7 @@ export default function ConvertTab(props) {
 
   const updateOutputPath = (path) => {
     if( path !== "" )
-    doesPathExist().then((result) => setPathExists(result));
+    doesPathExist(path).then((result) => setPathExists(result));
     else
     setPathExists(true);
 
@@ -99,7 +100,7 @@ export default function ConvertTab(props) {
 
   const renderPlaceholder = () => {
     return(
-      <div>
+      <div className="file-table-placeholder">
         Start by importing the files you want to fix...
       </div>
     );
@@ -122,9 +123,7 @@ export default function ConvertTab(props) {
 
   return(
     <div>
-      <h2>
-        Convert files
-      </h2>
+      <h2>Convert files</h2>
       <div>
         <h4>Sources:</h4>
         {
@@ -154,7 +153,7 @@ export default function ConvertTab(props) {
       </div>
       <div>
         <h4>Results:</h4>
-        
+
       </div>
     </div>
   );

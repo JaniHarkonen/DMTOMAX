@@ -8,11 +8,11 @@ export default function FixControls(props) {
 
   return (
     <div>
-      <button onClick={() => onRemove(getSelectedEntries())}>Remove selected</button>
-      <button onClick={() => onRemove(getAllEntries())}>Remove all</button>
-      <button onClick={() => onFix(getSelectedEntries())}>Fix selected</button>
-      <button onClick={() => onFix(getAllEntries())}>Fix all</button>
       <button onClick={() => onImport()}>Import files</button>
+      <button onClick={() => onFix(getSelectedEntries())}>Fix selected</button>
+      <button onClick={() => onRemove(getSelectedEntries())}>Remove selected</button>
+      <button onClick={() => onFix(getAllEntries())}>Fix all</button>
+      <button onClick={() => onRemove(getAllEntries())}>Remove all</button>
     </div>
   );
 }
