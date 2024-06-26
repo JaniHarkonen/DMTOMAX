@@ -6,7 +6,7 @@ const fs = require("fs");
 const readline = require("readline");
 const fsPromises = fs.promises;
 const { attachDialogHandler } = require("../src/ipc/attachDialogHandler");
-const { attachJsonHandler } = require("../src/ipc/attachJsonHandler");
+const { attachFSHandler } = require("../src/ipc/attachFSHandler");
 const { attachFileFixer } = require("../src/ipc/attachFileFixer");
  
 function createWindow() {
@@ -51,5 +51,5 @@ app.on("window-all-closed", function () {
 });
 
 attachDialogHandler(ipcMain, dialog);  // File system dialog handle
-attachJsonHandler(ipcMain, fsPromises);  // Config read/writer handle
+attachFSHandler(ipcMain, { fsPromises, fs });  // Config read/writer handle
 attachFileFixer(ipcMain, { fs, pathModule: path, readline }); // File fixer handle

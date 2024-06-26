@@ -14,7 +14,7 @@
  * @param {any} mappings JSON-object that contains the mappings for each
  * joint to their counterparts.
  */
-function fixFile(fs, readline, filePath, outputPath, mappings, r) {
+function fixFile(fs, readline, filePath, outputPath, mappings) {
   const time = performance.now();
   const KEYWORD = "JOINT";
   const END = "MOTION";
@@ -60,7 +60,7 @@ function fixFile(fs, readline, filePath, outputPath, mappings, r) {
 
   reader.on("close", () => {
     writer.close();
-    r({ filePath, outputPath, wasSucessful: true, timeElapsed: performance.now() - time });
+    //r({ filePath, outputPath, wasSucessful: true, timeElapsed: performance.now() - time });
   });
 }
 
@@ -69,18 +69,25 @@ function attachFileFixer(ipcMain, electron) {
 
   ipcMain.handle("fix-files", async (event, filePaths, outputPath, mappings) => {
     const promises = [];
-    outputPath = (outputPath && pathModule.normalize(outputPath)) || null;
+    const outputPathExists = (outputPath !== "");
 
     for( let filePath of filePaths ) {
       const parse = pathModule.parse(filePath);
+      let outputFile;
+      const fixedName = parse.name + "_fixed" + parse.ext;
 
-      if( !outputPath )
+      if( !outputPathExists )
+      outputFile = parse.dir + "\\" + fixedName;
+      else
+      outputFile = pathModule.join(outputPath, fixedName);
+
+      fs.writeFile("C:\\Users\\User\\Desktop\\DUMP\\massive.txt", outputFile, null, () => {});
+
+      /*if( !outputPath )
       outputPath = parse.dir;
 
-      outputPath += parse.name + "_fixed" + parse.ext;
-      promises.push(new Promise((resolve, reject) => {
-        fixFile(fs, readline, filePath, outputPath, mappings, resolve);
-      }));
+      outputPath += parse.name + "_fixed" + parse.ext;*/
+      //fixFile(fs, readline, filePath, outputFile, mappings);
     }
 
     return promises;

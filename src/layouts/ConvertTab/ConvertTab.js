@@ -6,14 +6,17 @@ import FixControls from "../../components/FixControls/FixControls";
 import { fixFiles } from "../../api/fixer";
 import { GlobalContext } from "../../context/GlobalContext";
 import { DEFAULT_CONFIGURATION_SCHEMA } from "../../api/configuration";
+import { doesPathExist } from "../../api/miscFS";
 import "./ConvertTab.css";
+import imgWarning from "../../assets/exclamation-triangle-icon.svg";
 
 const CONFIG_SUBSCRIPTION_ID = "convert-tab";
 
 export default function ConvertTab(props) {
   const [fileEntries, setFileEntries] = useState([]);
   const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
-  const [outputPath, setOutputPath] = useState(null);
+  const [outputPath, setOutputPath] = useState("");
+  const [pathExists, setPathExists] = useState(true);
   const { config } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -31,8 +34,9 @@ export default function ConvertTab(props) {
   };
 
   const handleFixFiles = (entries) => {
-    if( entries.length == 0 )
-    return;
+    if( entries.length == 0 || !pathExists ) {
+      return;
+    }
 
     const promises = fixFiles(
       entries.map((entry) => entry.filePath),
@@ -40,7 +44,7 @@ export default function ConvertTab(props) {
       mappings
     );
     console.log(promises);
-    Promise.all([...promises]).then((value) => console.log(value));
+    //Promise.all([...promises]).then((value) => console.log(value));
   };
 
   const handleRemoveFiles = (entries) => {
@@ -65,8 +69,17 @@ export default function ConvertTab(props) {
       if( result.canceled )
       return;
 
-      setOutputPath(result.filePaths[0]);
+      updateOutputPath(result.filePaths[0]);
     });
+  };
+
+  const updateOutputPath = (path) => {
+    if( path !== "" )
+    doesPathExist().then((result) => setPathExists(result));
+    else
+    setPathExists(true);
+
+    setOutputPath(path);
   };
 
   const renderControls = (
@@ -92,33 +105,57 @@ export default function ConvertTab(props) {
     );
   }
 
+  const renderOutputPathWarning = () => {
+    if( pathExists )
+    return <></>;
+
+    return (
+      <div className="d-flex d-align-items-center">
+        <img
+          className="warning-icon"
+          src={imgWarning}
+        />
+        Warning! Output directory doesn't exist.
+      </div>
+    )
+  };
+
   return(
     <div>
       <h2>
         Convert files
       </h2>
-      <h4>Sources:</h4>
-      {
-        <FileTable
-          entries={fileEntries}
-          controls={renderControls}
-          placeholder={renderPlaceholder}
+      <div>
+        <h4>Sources:</h4>
+        {
+          <FileTable
+            entries={fileEntries}
+            controls={renderControls}
+            placeholder={renderPlaceholder}
+          />
+        }
+      </div>
+      <div>
+        <h4>Output folder:</h4>
+        <p>
+          Leave blank to save the fixes in the same folders as the sources.
+        </p>
+        <input
+          value={outputPath}
+          onChange={(e) => updateOutputPath(e.target.value)}
         />
-      }
-      <h4>Output folder:</h4>
-      <p>
-        Leave blank to save the fixes in the same folders as the sources.
-      </p>
-      <input
-        value={outputPath}
-        onChange={(e) => setOutputPath(e.target.value)}
-      />
-      <button
-        className="browse-filesys-button"
-        onClick={handleOutputSelection}
-      >
-        {"..."}
-      </button>
+        <button
+          className="browse-filesys-button"
+          onClick={handleOutputSelection}
+        >
+          {"..."}
+        </button>
+        { renderOutputPathWarning() }
+      </div>
+      <div>
+        <h4>Results:</h4>
+        
+      </div>
     </div>
   );
 }
