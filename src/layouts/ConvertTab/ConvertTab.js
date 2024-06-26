@@ -1,17 +1,19 @@
 import { useContext, useEffect, useState } from "react";
-import { FilesysDialogSettings, showOpenFile } from "../../api/fileSystemDialog";
+import { FilesysDialogSettings, showOpenDirectory, showOpenFile } from "../../api/fileSystemDialog";
 import FileTable from "../../components/FileTable/FileTable";
 import { Entry } from "../../components/FileTableEntry/FileTableEntry";
 import FixControls from "../../components/FixControls/FixControls";
 import { fixFiles } from "../../api/fixer";
 import { GlobalContext } from "../../context/GlobalContext";
 import { DEFAULT_CONFIGURATION_SCHEMA } from "../../api/configuration";
+import "./ConvertTab.css";
 
 const CONFIG_SUBSCRIPTION_ID = "convert-tab";
 
 export default function ConvertTab(props) {
   const [fileEntries, setFileEntries] = useState([]);
   const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
+  const [outputPath, setOutputPath] = useState(null);
   const { config } = useContext(GlobalContext);
 
   useEffect(() => {
@@ -34,7 +36,7 @@ export default function ConvertTab(props) {
 
     const promises = fixFiles(
       entries.map((entry) => entry.filePath),
-      "C:\\Users\\User\\Desktop\\DUMP\\",
+      outputPath,
       mappings
     );
     console.log(promises);
@@ -58,6 +60,15 @@ export default function ConvertTab(props) {
     setFileEntries(filteredEntries);
   };
 
+  const handleOutputSelection = () => {
+    showOpenDirectory(FilesysDialogSettings(), (result) => {
+      if( result.canceled )
+      return;
+
+      setOutputPath(result.filePaths[0]);
+    });
+  };
+
   const renderControls = (
     getAllEntries,
     getSelectedEntries
@@ -73,21 +84,41 @@ export default function ConvertTab(props) {
     );
   };
 
+  const renderPlaceholder = () => {
+    return(
+      <div>
+        Start by importing the files you want to fix...
+      </div>
+    );
+  }
+
   return(
     <div>
       <h2>
-        Choose DM files
+        Convert files
       </h2>
       <h4>Sources:</h4>
-      <FileTable
-        entries={fileEntries}
-        controls={renderControls}
-      />
+      {
+        <FileTable
+          entries={fileEntries}
+          controls={renderControls}
+          placeholder={renderPlaceholder}
+        />
+      }
       <h4>Output folder:</h4>
       <p>
         Leave blank to save the fixes in the same folders as the sources.
       </p>
-      <button onClick={() => showOpenFile(FilesysDialogSettings(), (result) => console.log(result))}>...</button><input />
+      <input
+        value={outputPath}
+        onChange={(e) => setOutputPath(e.target.value)}
+      />
+      <button
+        className="browse-filesys-button"
+        onClick={handleOutputSelection}
+      >
+        {"..."}
+      </button>
     </div>
   );
 }

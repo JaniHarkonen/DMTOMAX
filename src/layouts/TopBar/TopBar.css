@@ -2,10 +2,11 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  background-color: gray;
+  background-color: #96CEFF;
 }
 
 .top-bar-tab {
-  background-color: red;
-  color: white;
+  background-color: #D6EBFF;
+  color: #2395FF;
+  width: 128px;
 }

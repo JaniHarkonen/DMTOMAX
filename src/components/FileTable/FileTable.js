@@ -11,6 +11,7 @@ export const FileTableSelection = (index, isSelected) => {
 export default function FileTable(props) {
   const fileEntries = props.entries;
   const renderControls = props.controls;
+  const renderPlaceholder = props.placeholder;
 
   const [selections, setSelections] = useState({});
 
@@ -100,7 +101,7 @@ export default function FileTable(props) {
 
   return (
     <div>
-      { renderEntries(fileEntries) }
+      { fileEntries.length > 0 ? renderEntries(fileEntries) : renderPlaceholder() }
       {
         renderControls(
           () => fileEntries,

@@ -12,7 +12,7 @@ export default function DMTOMAX() {
         tabs={DMTOMAXTabs}
         onTabSelect={(tab) => setTab(tab)}
       />
-      <div className="overflow-y-auto">
+      <div className="tab-content">
         {selectedTab && <selectedTab.TabElement />}
       </div>
     </div>
