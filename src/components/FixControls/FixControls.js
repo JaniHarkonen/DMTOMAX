@@ -1,3 +1,5 @@
+import "./FixControls.css";
+
 export default function FixControls(props) {
   const getAllEntries = props.getAllEntries || function() { return [] };
   const getSelectedEntries = props.getSelectedEntries || function() { return [] };
@@ -8,11 +10,31 @@ export default function FixControls(props) {
 
   return (
     <div>
-      <button onClick={() => onRemove(getSelectedEntries())}>Remove selected</button>
-      <button onClick={() => onRemove(getAllEntries())}>Remove all</button>
-      <button onClick={() => onFix(getSelectedEntries())}>Fix selected</button>
-      <button onClick={() => onFix(getAllEntries())}>Fix all</button>
       <button onClick={() => onImport()}>Import files</button>
+      <button
+        className="fix-controls-approval-button"
+        onClick={() => onFix(getSelectedEntries())}
+      >
+        Convert selected
+      </button>
+      <button
+        className="fix-controls-approval-button"
+        onClick={() => onFix(getAllEntries())}
+      >
+        Convert all
+      </button>
+      <button
+        className="fix-controls-reject-button"
+        onClick={() => onRemove(getSelectedEntries())}
+      >
+        Remove selected
+      </button>
+      <button
+        className="fix-controls-reject-button"
+        onClick={() => onRemove(getAllEntries())}
+      >
+        Remove all
+      </button>
     </div>
   );
 }

@@ -1,10 +1,7 @@
-.file-table-entry {
-  display: flex;
-  width: 100%;
+.file-table-entry-fixed {
+  background-color: #BBFF9B;
+}
 
-  flex-direction: column;
-
-  border-style: solid;
-  border-width: 1px;
-  border-color: gray;
+.file-table-entry-failed {
+  background-color: #FFBABA;
 }

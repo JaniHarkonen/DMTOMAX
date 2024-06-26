@@ -35,5 +35,5 @@ export const showSaveFile = (settings, callback) =>  {
 };
 
 export const showOpenDirectory = (settings, callback) => {
-  invokeDialog(settings, callback, "open-filesys-dialog", "openFolder");
+  invokeDialog(settings, callback, "open-filesys-dialog", "openDirectory");
 };

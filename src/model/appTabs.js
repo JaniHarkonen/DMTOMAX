@@ -10,6 +10,6 @@ export const AppTab = (tabKey, tabCaption, TabElement) => {
 };
 
 export const DMTOMAXTabs = [
-  AppTab("convert", "Convert", ConvertTab),
+  AppTab("convert", "Convert files", ConvertTab),
   AppTab("mappings", "Define mappings", MappingsTab)
 ];

@@ -1,16 +1,18 @@
 import { useEffect, useState } from "react";
 import FileTableEntry from "../FileTableEntry/FileTableEntry";
+import "./FileTable.css";
 
-export const FileTableSelection = (index, isSelected) => {
+export function FileTableSelection(index, isSelected) {
   return {
     index,
     isSelected
   };
-};
+}
 
 export default function FileTable(props) {
   const fileEntries = props.entries;
   const renderControls = props.controls;
+  const renderPlaceholder = props.placeholder;
 
   const [selections, setSelections] = useState({});
 
@@ -60,7 +62,7 @@ export default function FileTable(props) {
     newSelection[i] = false;
 
     setSelections(newSelection);
-  }
+  };
 
   const areAllSelected = () => {
     if( fileEntries.length == 0 )
@@ -71,13 +73,16 @@ export default function FileTable(props) {
       return false;
     }
     return true;
-  }
+  };
+
+  console.log(fileEntries);
 
   const renderEntries = (entries) => {
     const entryElements = entries.map((entry, index) => {
       return (
         <FileTableEntry
           key={entry.filePath}
+          status={entry.status}
           isSelected={selections[index]}
           path={entry.filePath}
           onSelect={() => appendSelection([
@@ -86,33 +91,38 @@ export default function FileTable(props) {
         />
       );
     });
+
     return (
-      <>
+      <div>
         <input
           type="checkbox"
           checked={areAllSelected()}
           onChange={selectAll}
         />
         { entryElements }
-      </>
+      </div>
     );
   };
 
   return (
     <div>
-      { renderEntries(fileEntries) }
-      {
-        renderControls(
-          () => fileEntries,
-          () => fileEntries.filter((entry, index) => isEntrySelected(index)),
-          () => fileEntries.filter((entry, index) => !isEntrySelected(index)),
-          isEntrySelected,
-          appendSelection,
-          selectAll,
-          deselectAll,
-          areAllSelected
-        )
-      }
+      <div className="file-table-file-list">
+        { fileEntries.length > 0 ? renderEntries(fileEntries) : renderPlaceholder() }
+      </div>
+      <div>
+        {
+          renderControls(
+            () => fileEntries,
+            () => fileEntries.filter((entry, index) => isEntrySelected(index)),
+            () => fileEntries.filter((entry, index) => !isEntrySelected(index)),
+            isEntrySelected,
+            appendSelection,
+            selectAll,
+            deselectAll,
+            areAllSelected
+          )
+        }
+      </div>
     </div>
   );
 }

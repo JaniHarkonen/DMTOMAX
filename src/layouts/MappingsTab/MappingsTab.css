@@ -1,3 +1,9 @@
-.mappings-table {
-  
+.mappings-tab-caption {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.mappings-controls-container {
+  margin-left: 5px;
 }
