@@ -14,7 +14,7 @@
  * @param {any} mappings JSON-object that contains the mappings for each
  * joint to their counterparts.
  */
-async function fixFile(fs, readline, filePath, outputPath, mappings) {
+function fixFile(fs, readline, filePath, outputPath, mappings) {
   const time = performance.now();
 
   return new Promise((resolve, reject) => {
@@ -63,7 +63,8 @@ async function fixFile(fs, readline, filePath, outputPath, mappings) {
     reader.on("close", () => {
       writer.close();
       resolve({
-        wasSucessful: true,
+        wasSuccessful: true,
+        comment: "Fixed successfully",
         filePath,
         outputPath: outputFile,
         timeElapsed: performance.now() - time
@@ -86,28 +87,6 @@ function attachFileFixer(ipcMain, electron) {
 
     return fixFile(fs, readline, filePath, outputFile, mappings);
   });
-
-  /*
-  ipcMain.handle("fix-files", async (event, filePaths, outputPath, mappings) => {
-    const promises = [];
-    const outputPathExists = (outputPath !== "");
-
-    for( let filePath of filePaths ) {
-      const parse = pathModule.parse(filePath);
-      let outputFile;
-      const fixedName = parse.name + "_fixed" + parse.ext;
-
-      if( !outputPathExists )
-      outputFile = parse.dir + "\\" + fixedName;
-      else
-      outputFile = pathModule.join(outputPath, fixedName);
-
-      fs.writeFile("C:\\Users\\User\\Desktop\\DUMP\\massive.txt", outputFile, null, () => {});
-      fixFile(fs, readline, filePath, outputFile, mappings);
-    }
-
-    return promises;
-  });*/
 }
 
 exports.attachFileFixer = attachFileFixer;

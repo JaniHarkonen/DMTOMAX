@@ -7,30 +7,37 @@ import { fixFiles } from "../../api/fixer";
 import { GlobalContext } from "../../context/GlobalContext";
 import { DEFAULT_CONFIGURATION_SCHEMA } from "../../api/configuration";
 import { doesPathExist } from "../../api/miscFS";
+import imgWarning from "../../assets/exclamation-triangle-icon.svg"
 import "./ConvertTab.css";
-import imgWarning from "../../assets/exclamation-triangle-icon.svg";
 
 const CONFIG_SUBSCRIPTION_ID = "convert-tab";
+const CONFIG_STORAGE_FILE_ENTRIES = "conversion-file-entries";
+const CONFIG_STORAGE_OUTPUT_PATH = "conversion-output-path";
 
-export default function ConvertTab(props) {
-  const [fileEntries, setFileEntries] = useState([]);
-  const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
-  const [outputPath, setOutputPath] = useState("");
-  const [pathExists, setPathExists] = useState(true);
-  const [results, setResults] = useState([]);
+export default function ConvertTab() {
   const { config } = useContext(GlobalContext);
+  const [fileEntries, setFileEntries] = useState(config.getStored(CONFIG_STORAGE_FILE_ENTRIES, []));
+  const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
+  const [outputPath, setOutputPath] = useState(config.getStored(CONFIG_STORAGE_OUTPUT_PATH));
+  const [pathExists, setPathExists] = useState(true);
 
   useEffect(() => {
     config.subscribe(CONFIG_SUBSCRIPTION_ID, (data) => setMappings(data.configuration.mappings));
     return () => config.unsubscribe(CONFIG_SUBSCRIPTION_ID);
   }, []);
 
+  const handleFileEntries = (entries) => {
+    config.store(CONFIG_STORAGE_FILE_ENTRIES, entries);
+    setFileEntries(entries);
+  };
+
   const handleImportFiles = () => {
     const settings = FilesysDialogSettings();
     settings.multiSelections = true;
+
     showOpenFile(settings, (response) => {
       if( !response.canceled )
-      setFileEntries(response.filePaths.map((file) => Entry(file, false)));
+      handleFileEntries(response.filePaths.map((file) => Entry(file, false)));
     });
   };
 
@@ -45,7 +52,7 @@ export default function ConvertTab(props) {
       mappings
     );
 
-    Promise.all(promises).then((value) => console.log(value));
+    Promise.all(promises).then((result) => console.log(result));
   };
 
   const handleRemoveFiles = (entries) => {
@@ -62,7 +69,7 @@ export default function ConvertTab(props) {
       currentPointer++;
     }
 
-    setFileEntries(filteredEntries);
+    handleFileEntries(filteredEntries);
   };
 
   const handleOutputSelection = () => {
@@ -80,6 +87,7 @@ export default function ConvertTab(props) {
     else
     setPathExists(true);
 
+    config.store(CONFIG_STORAGE_OUTPUT_PATH, path);
     setOutputPath(path);
   };
 
@@ -101,10 +109,10 @@ export default function ConvertTab(props) {
   const renderPlaceholder = () => {
     return(
       <div className="file-table-placeholder">
-        Start by importing the files you want to fix...
+        Start by importing the files you want to convert...
       </div>
     );
-  }
+  };
 
   const renderOutputPathWarning = () => {
     if( pathExists )
@@ -118,7 +126,7 @@ export default function ConvertTab(props) {
         />
         Warning! Output directory doesn't exist.
       </div>
-    )
+    );
   };
 
   return(
@@ -135,6 +143,7 @@ export default function ConvertTab(props) {
         }
       </div>
       <div>
+        <strong>Status: </strong>
         <h4>Output folder:</h4>
         <p>
           Leave blank to save the fixes in the same folders as the sources.
@@ -150,10 +159,6 @@ export default function ConvertTab(props) {
           {"..."}
         </button>
         { renderOutputPathWarning() }
-      </div>
-      <div>
-        <h4>Results:</h4>
-
       </div>
     </div>
   );

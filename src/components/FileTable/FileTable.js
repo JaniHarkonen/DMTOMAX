@@ -2,12 +2,12 @@ import { useEffect, useState } from "react";
 import FileTableEntry from "../FileTableEntry/FileTableEntry";
 import "./FileTable.css";
 
-export const FileTableSelection = (index, isSelected) => {
+export function FileTableSelection(index, isSelected) {
   return {
     index,
     isSelected
   };
-};
+}
 
 export default function FileTable(props) {
   const fileEntries = props.entries;
@@ -62,7 +62,7 @@ export default function FileTable(props) {
     newSelection[i] = false;
 
     setSelections(newSelection);
-  }
+  };
 
   const areAllSelected = () => {
     if( fileEntries.length == 0 )
@@ -73,7 +73,7 @@ export default function FileTable(props) {
       return false;
     }
     return true;
-  }
+  };
 
   const renderEntries = (entries) => {
     const entryElements = entries.map((entry, index) => {
@@ -88,15 +88,16 @@ export default function FileTable(props) {
         />
       );
     });
+
     return (
-      <>
+      <div>
         <input
           type="checkbox"
           checked={areAllSelected()}
           onChange={selectAll}
         />
         { entryElements }
-      </>
+      </div>
     );
   };
 

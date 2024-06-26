@@ -23,8 +23,7 @@ export default function MappingsTab() {
 
   const handleReset = () => {
     setMappings(DEFAULT_CONFIGURATION_SCHEMA.mappings);
-    config.update(DEFAULT_CONFIGURATION_SCHEMA);
-    setUnsavedChanges({});
+    setUnsavedChanges({ ...mappings });
   };
 
   const handleMappingChange = (mapKey, value) => {
@@ -36,7 +35,7 @@ export default function MappingsTab() {
       ...unsavedChanges,
       [mapKey]: true
     });
-  }
+  };
 
   const renderMappings = (mappings) => {
     return Object.keys(mappings).map((mapKey) => (
@@ -83,8 +82,8 @@ export default function MappingsTab() {
         <table>
           <thead>
             <tr>
-              <th>From</th>
-              <th>To</th>
+              <th>Joint</th>
+              <th>Replacement</th>
               <th></th>
             </tr>
           </thead>

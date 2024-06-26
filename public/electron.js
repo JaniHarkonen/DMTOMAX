@@ -11,7 +11,7 @@ const { attachFileFixer } = require("../src/ipc/attachFileFixer");
  
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 800,
+    width: 575,
     height: 600,
     webPreferences: {
       nodeIntegration: true,

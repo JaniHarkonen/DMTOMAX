@@ -69,6 +69,7 @@ export class Config {
     this.configuration = null;
     this.configurationPath = configurationPath;
     this.skipFileUpdates = false;
+    this.unsavedConfiguration = {};
   }
 
   loadConfig(callback) {
@@ -138,5 +139,13 @@ export class Config {
 
   stopFileUpdates(skipFlag) {
     this.skipFileUpdates = skipFlag;
+  }
+
+  store(key, value) {
+    this.unsavedConfiguration[key] = value;
+  }
+
+  getStored(key, defaultValue = undefined) {
+    return this.unsavedConfiguration[key] || defaultValue;
   }
 }

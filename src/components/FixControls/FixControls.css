@@ -1,0 +1,21 @@
+.fix-controls-approval-button {
+  border-color: #39AD00;
+  background-color: #BBFF9B;
+  color: #39AD00;
+
+  &:hover {
+    background-color: #E0FFD1;
+    cursor: pointer;
+  }
+}
+
+.fix-controls-reject-button {
+  border-color: #D30000;
+  background-color: #FFBABA;
+  color: #D30000;
+
+  &:hover {
+    background-color: #FFD8D8;
+    cursor: pointer;
+  }
+}
