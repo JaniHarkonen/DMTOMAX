@@ -7,8 +7,9 @@ import { fixFiles } from "../../api/fixer";
 import { GlobalContext } from "../../context/GlobalContext";
 import { DEFAULT_CONFIGURATION_SCHEMA } from "../../api/configuration";
 import { doesPathExist } from "../../api/miscFS";
-import imgWarning from "../../assets/exclamation-triangle-icon.svg"
 import "./ConvertTab.css";
+import OutputPathWarning from "../../components/OutputPathWarning/OutputPathWarning";
+import useMappings from "../../hooks/useMappings";
 
 const FIXER_STATUS = {
   ready: "ready",
@@ -25,6 +26,16 @@ export function FixerStatus(status, title, timeElapsed = 0) {
   };
 }
 
+function fileEntriesToArray(entries) {
+  const array = [];
+
+  for( let key of Object.keys(entries) ) {
+    array.push(entries[key]);
+  }
+
+  return array;
+}
+
 const FIXER_READY = FixerStatus(FIXER_STATUS.ready, "Ready!");
 
 const CONFIG_SUBSCRIPTION_ID = "convert-tab";
@@ -34,17 +45,16 @@ const CONFIG_STORAGE_OUTPUT_PATH = "conversion-output-path";
 export default function ConvertTab() {
   const { config } = useContext(GlobalContext);
   const [fileEntries, setFileEntries] = useState({});
-  const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
   const [outputPath, setOutputPath] = useState("");
   const [pathExists, setPathExists] = useState(true);
   const [fixerStatus, setFixerStatus] = useState(FIXER_READY);
 
+  const { mappings } = useMappings(CONFIG_SUBSCRIPTION_ID);
+
   useEffect(() => {
-    config.subscribe(CONFIG_SUBSCRIPTION_ID, (data) => setMappings(data.configuration.mappings));
     setFileEntries(config.getStored(CONFIG_STORAGE_FILE_ENTRIES, {}));
     setOutputPath(config.getStored(CONFIG_STORAGE_OUTPUT_PATH, ""));
-    return () => config.unsubscribe(CONFIG_SUBSCRIPTION_ID);
-  }, []);
+  }, [config]);
 
   const updateFileEntries = (entries) => {
     config.store(CONFIG_STORAGE_FILE_ENTRIES, entries);
@@ -98,7 +108,7 @@ export default function ConvertTab() {
   };
 
   const handleFixFiles = (entries) => {
-    if( entries.length == 0 || !pathExists ) {
+    if( entries.length === 0 || !pathExists ) {
       return;
     }
 
@@ -176,31 +186,6 @@ export default function ConvertTab() {
     );
   };
 
-  const renderOutputPathWarning = () => {
-    if( pathExists )
-    return <><p></p></>;
-
-    return (
-      <div className="d-flex d-align-items-center">
-        <img
-          className="warning-icon"
-          src={imgWarning}
-        />
-        Warning! Output directory doesn't exist.
-      </div>
-    );
-  };
-
-  const fileEntriesToArray = (entries) => {
-    const array = [];
-
-    for( let key of Object.keys(entries) ) {
-      array.push(entries[key]);
-    }
-
-    return array;
-  }
-
   return (
     <div>
       <h2>Convert files</h2>
@@ -230,7 +215,7 @@ export default function ConvertTab() {
         >
           {"..."}
         </button>
-        { renderOutputPathWarning() }
+        <OutputPathWarning hide={pathExists} />
       </div>
     </div>
   );

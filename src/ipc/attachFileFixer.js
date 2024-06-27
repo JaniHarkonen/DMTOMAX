@@ -34,9 +34,12 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
       crlfDelay: Infinity
     });
 
-    let endEncountered = false;
+    const produceResult = (wasSuccessful, comment) => {
+      return FixResult(wasSuccessful, comment, filePath, outputPath);
+    }
     
       // Read and write line-by-line to preserve memory
+    let endEncountered = false;
     reader.on("line", (line) => {
 
         // Quick exit if the rest of the file is an exact copy of the target file
@@ -69,33 +72,18 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
     });
 
     reader.on("error", (err) => {
-      writer.close();
-      resolve(FixResult(
+      resolve(produceResult(false, "Couldn't read the source file! It may not exist."));
+    });
+
+    writer.on("error", (err) => {
+      resolve(produceResult(
         false, 
-        "Couldn't read the source file! It may not exist.", 
-        filePath, 
-        outputFile
+        "Couldn't write to the output file!" + 
+        "Output path may be invalid or the file is used by another process."
       ));
     });
 
-    writer.on("error", () => {
-      resolve(FixResult(
-        false,
-        "Couldn't write to the output file! Output path may be invalid or the file is used by another process.",
-        filePath,
-        outputFile
-      ));
-    })
-
-    reader.on("close", () => {
-      writer.close();
-      resolve(FixResult(
-        true, 
-        "Fixed successfully", 
-        filePath, 
-        outputFile
-      ));
-    });
+    reader.on("close", () => resolve(produceResult(true, "Fixed successfully")));
   });
 }
 

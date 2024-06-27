@@ -1,36 +1,32 @@
-import { useContext, useEffect, useState } from "react"
-import { GlobalContext } from "../../context/GlobalContext"
-import { DEFAULT_CONFIGURATION_SCHEMA } from "../../api/configuration";
-import imgWarning from "../../assets/exclamation-triangle-icon.svg";
+import { useState } from "react"
+import ChangedMappingWarning from "../../components/ChangedMappingWarning/ChangedMappingWarning";
 import "./MappingsTab.css";
+import useMappings from "../../hooks/useMappings";
 
 const CONFIG_SUBSCRIPTION_ID = "mappings-tab";
 
 export default function MappingsTab() {
-  const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA.mappings);
   const [unsavedChanges, setUnsavedChanges] = useState({});
-  const { config } = useContext(GlobalContext);
 
-  useEffect(() => {
-    config.subscribe(CONFIG_SUBSCRIPTION_ID, (data) => setMappings(data.configuration.mappings));
-    return () => config.unsubscribe(CONFIG_SUBSCRIPTION_ID);
-  }, []);
+  const {
+    mappings,
+    saveMappings,
+    resetMappings,
+    editMapping
+  } =  useMappings(CONFIG_SUBSCRIPTION_ID);
 
   const handleSave = () => {
-    config.updateMappings(mappings);
+    saveMappings();
     setUnsavedChanges({});
   };
 
   const handleReset = () => {
-    setMappings(DEFAULT_CONFIGURATION_SCHEMA.mappings);
+    resetMappings();
     setUnsavedChanges({ ...mappings });
   };
 
   const handleMappingChange = (mapKey, value) => {
-    setMappings({
-      ...mappings,
-      [mapKey]: value
-    });
+    editMapping(mapKey, value);
     setUnsavedChanges({
       ...unsavedChanges,
       [mapKey]: true
@@ -49,23 +45,11 @@ export default function MappingsTab() {
         </td>
         <td>
           <div className="d-flex d-align-items-center">
-            {unsavedChanges[mapKey] && renderChangedWarning()}
+            <ChangedMappingWarning hide={!unsavedChanges[mapKey]} />
           </div>
         </td>
       </tr>
     ));
-  };
-
-  const renderChangedWarning = () => {
-    return (
-      <div>
-        <img
-          className="warning-icon"
-          src={imgWarning}
-        />
-        Unsaved changes!
-      </div>
-    )
   };
 
   return (
@@ -76,7 +60,9 @@ export default function MappingsTab() {
           <button onClick={handleSave}>Save</button>
           <button onClick={handleReset}>Reset</button>
         </div>
-        {Object.keys(unsavedChanges).length > 0 && renderChangedWarning()}
+        <ChangedMappingWarning
+          hide={Object.keys(unsavedChanges).length === 0}
+        />
       </div>
       <div>
         <table>

@@ -1,6 +1,6 @@
 const ipcRenderer = window.require("electron").ipcRenderer;
 
-export const FilesysDialogSettings = (dontAddToRecent = true) => {
+export function FilesysDialogSettings(dontAddToRecent = true) {
   return {
     title: "",
     buttonLabel: "",
@@ -10,7 +10,7 @@ export const FilesysDialogSettings = (dontAddToRecent = true) => {
   };
 };
 
-const invokeDialog = (settings, callback, dialogType, openType) => {
+function invokeDialog(settings, callback, dialogType, openType) {
   ipcRenderer.invoke(
     dialogType, {
       ...settings,
@@ -19,7 +19,7 @@ const invokeDialog = (settings, callback, dialogType, openType) => {
   ).then((response) => callback(response));
 };
 
-export const showOpenFile = (settings, callback) => {
+export function showOpenFile(settings, callback) {
   invokeDialog({
       ...settings,
       properties: settings.properties.concat(settings.multiSelections && "multiSelections")
@@ -30,10 +30,10 @@ export const showOpenFile = (settings, callback) => {
   );
 };
 
-export const showSaveFile = (settings, callback) =>  {
+export function showSaveFile(settings, callback) {
   invokeDialog(settings, callback, "save-filesys-dialog", "openFile");
 };
 
-export const showOpenDirectory = (settings, callback) => {
+export function showOpenDirectory(settings, callback) {
   invokeDialog(settings, callback, "open-filesys-dialog", "openDirectory");
 };
