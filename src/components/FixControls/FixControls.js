@@ -1,5 +1,5 @@
 import { FilesysDialogSettings, showOpenFile } from "../../api/fileSystemDialog";
-import { fixFiles } from "../../api/fixer";
+import { fixFiles, mappingsToMappingsTable } from "../../api/fixer";
 import { ENTRY_STATUS, Entry } from "../FileTableEntry/FileTableEntry";
 import "./FixControls.css";
 
@@ -34,7 +34,7 @@ export default function FixControls(props) {
     const promises = fixFiles(
       entries.map((entry) => entry.filePath),
       outputPath,
-      mappings
+      mappingsToMappingsTable(mappings)
     );
 
     const time = performance.now();

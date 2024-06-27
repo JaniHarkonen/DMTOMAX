@@ -25,7 +25,7 @@ export default function MappingsTab() {
     
     const changes = {};
     for( let i = 0; i < mappings.length; i++ )
-    changes[i] = false;
+    changes[i] = true;
 
     setUnsavedChanges(changes);
   };
