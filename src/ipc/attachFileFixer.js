@@ -72,10 +72,12 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
     });
 
     reader.on("error", (err) => {
+      writer.close();
       resolve(produceResult(false, "Couldn't read the source file! It may not exist."));
     });
 
     writer.on("error", (err) => {
+      writer.close();
       resolve(produceResult(
         false, 
         "Couldn't write to the output file!" + 
@@ -83,7 +85,10 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
       ));
     });
 
-    reader.on("close", () => resolve(produceResult(true, "Fixed successfully")));
+    reader.on("close", () => {
+      writer.close();
+      resolve(produceResult(true, "Fixed successfully"));
+    });
   });
 }
 

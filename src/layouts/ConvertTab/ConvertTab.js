@@ -1,21 +1,14 @@
 import { useContext, useEffect, useState } from "react";
-import { FilesysDialogSettings, showOpenDirectory, showOpenFile } from "../../api/fileSystemDialog";
+import { FilesysDialogSettings, showOpenDirectory } from "../../api/fileSystemDialog";
 import FileTable from "../../components/FileTable/FileTable";
-import { ENTRY_STATUS, Entry } from "../../components/FileTableEntry/FileTableEntry";
 import FixControls from "../../components/FixControls/FixControls";
-import { fixFiles } from "../../api/fixer";
 import { GlobalContext } from "../../context/GlobalContext";
 import { doesPathExist } from "../../api/miscFS";
 import "./ConvertTab.css";
 import OutputPathWarning from "../../components/OutputPathWarning/OutputPathWarning";
 import useMappings from "../../hooks/useMappings";
-
-const FIXER_STATUS = {
-  ready: "ready",
-  fixing: "fixing",
-  successful: "successful",
-  failed: "failed",
-};
+import { FIXER_STATUS } from "../../api/fixer";
+import useFileEntries from "../../hooks/useFileEntries";
 
 export function FixerStatus(status, title, timeElapsed = 0) {
   return {
@@ -37,93 +30,39 @@ function fileEntriesToArray(entries) {
 
 const FIXER_READY = FixerStatus(FIXER_STATUS.ready, "Ready!");
 
-const CONFIG_SUBSCRIPTION_ID = "convert-tab";
-const CONFIG_STORAGE_FILE_ENTRIES = "conversion-file-entries";
-const CONFIG_STORAGE_OUTPUT_PATH = "conversion-output-path";
-
 export default function ConvertTab() {
+  const CONFIG_SUBSCRIPTION_ID = "convert-tab";
+  const CONFIG_STORAGE_FILE_ENTRIES = "conversion-file-entries";
+  const CONFIG_STORAGE_OUTPUT_PATH = "conversion-output-path";
+
   const { config } = useContext(GlobalContext);
-  const [fileEntries, setFileEntries] = useState({});
   const [outputPath, setOutputPath] = useState("");
   const [pathExists, setPathExists] = useState(true);
   const [fixerStatus, setFixerStatus] = useState(FIXER_READY);
 
   const { mappings } = useMappings(CONFIG_SUBSCRIPTION_ID);
 
+  const { fileEntries, updateFileEntries, updateFileEntryStatuses } = useFileEntries(CONFIG_STORAGE_FILE_ENTRIES);
+
   useEffect(() => {
-    setFileEntries(config.getStored(CONFIG_STORAGE_FILE_ENTRIES, {}));
     setOutputPath(config.getStored(CONFIG_STORAGE_OUTPUT_PATH, ""));
-  }, [config]);
+  }, []);
 
-  const updateFileEntries = (entries) => {
-    config.store(CONFIG_STORAGE_FILE_ENTRIES, entries);
-  }
-
-  const handleFileEntries = (entries) => {
-    const newEntries = {};
-
-    for( let entry of entries ) {
-      newEntries[entry.filePath] = entry;
-    }
-
-    updateFileEntries(newEntries);
-    setFileEntries(newEntries);
-  };
-
-    // We use keyfield to determine the key fieldname in order to make this 
-    // function a bit more versatile in case it's used by something other than
-    // the fixer callbacks
-  const updateFileEntryStatuses = (results, keyField, timeElapsed) => {
-    let oneFailed = false;
-    const newEntries = { ...fileEntries };
-
-    for( let result of results ) {
-      if( !result.wasSuccessful )
-      oneFailed = true;
-
-      newEntries[result[keyField]] = {
-        ...fileEntries[result[keyField]],
-        status: result.wasSuccessful ? ENTRY_STATUS.fixed : ENTRY_STATUS.failed
-      };
-    }
-
-    updateFileEntries(newEntries);
-    setFileEntries(newEntries);
-
-    if( oneFailed )
-    setFixerStatus(FixerStatus(FIXER_STATUS.failed, "Failed to convert all the files in red!", timeElapsed));
-    else
-    setFixerStatus(FixerStatus(FIXER_STATUS.successful, "Successfully converted all files!", timeElapsed));
-  }
-
-  const handleImportFiles = () => {
-    const settings = FilesysDialogSettings();
-    settings.multiSelections = true;
-
-    showOpenFile(settings, (response) => {
-      if( !response.canceled )
-      handleFileEntries(response.filePaths.map((file) => Entry(file, false, ENTRY_STATUS.unfixed)));
-    });
-  };
-
-  const handleFixFiles = (entries) => {
-    if( entries.length === 0 || !pathExists ) {
-      return;
-    }
-
-    const promises = fixFiles(
-      entries.map((entry) => entry.filePath),
-      outputPath,
-      mappings
+  const handleFix = (results, keyField, timeElapsed) => {
+    updateFileEntryStatuses(
+      results,
+      keyField,
+      () => {
+        setFixerStatus(FixerStatus(
+          FIXER_STATUS.failed, "Failed to convert all the files in red!", timeElapsed
+        ))
+      },
+      () => {
+        setFixerStatus(FixerStatus(
+          FIXER_STATUS.successful, "Successfully converted all files!", timeElapsed
+        ))
+      }
     );
-
-    const time = performance.now();
-    Promise.all(promises)
-    .then(
-      (results) => updateFileEntryStatuses(results, "filePath", performance.now() - time)
-    );
-
-    setFixerStatus(FIXER_STATUS.fixing);
   };
 
   const handleRemoveFiles = (entries) => {
@@ -140,7 +79,7 @@ export default function ConvertTab() {
       currentPointer++;
     }
 
-    handleFileEntries(filteredEntries);
+    updateFileEntries(filteredEntries);
   };
 
   const handleOutputSelection = () => {
@@ -170,9 +109,13 @@ export default function ConvertTab() {
       <FixControls
         getAllEntries={getAllEntries}
         getSelectedEntries={getSelectedEntries}
-        onImport={handleImportFiles}
-        onFix={handleFixFiles}
+        onImport={updateFileEntries}
+        onFix={handleFix}
+        onWait={() => setFixerStatus(FIXER_STATUS.fixing)}
         onRemove={handleRemoveFiles}
+        outputPath={outputPath}
+        mappings={mappings}
+        canFix={pathExists}
       />
     );
   };
