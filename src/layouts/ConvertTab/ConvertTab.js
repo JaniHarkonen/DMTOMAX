@@ -11,23 +11,21 @@ import imgWarning from "../../assets/exclamation-triangle-icon.svg"
 import "./ConvertTab.css";
 
 const FIXER_STATUS = {
-  ready: {
-    status: "ready",
-    title: "Ready!"
-  },
-  fixing: {
-    status: "fixing",
-    title: "Fixing..."
-  },
-  successful: {
-    status: "successful",
-    title: "Fixed all files successfully!"
-  },
-  failed: {
-    status: "failed",
-    title: "Failed to fix all files in red!"
-  }
+  ready: "ready",
+  fixing: "fixing",
+  successful: "successful",
+  failed: "failed",
 };
+
+export function FixerStatus(status, title, timeElapsed = 0) {
+  return {
+    status,
+    title,
+    timeElapsed
+  };
+}
+
+const FIXER_READY = FixerStatus(FIXER_STATUS.ready, "Ready!");
 
 const CONFIG_SUBSCRIPTION_ID = "convert-tab";
 const CONFIG_STORAGE_FILE_ENTRIES = "conversion-file-entries";
@@ -35,14 +33,16 @@ const CONFIG_STORAGE_OUTPUT_PATH = "conversion-output-path";
 
 export default function ConvertTab() {
   const { config } = useContext(GlobalContext);
-  const [fileEntries, setFileEntries] = useState(config.getStored(CONFIG_STORAGE_FILE_ENTRIES, {}));
+  const [fileEntries, setFileEntries] = useState({});
   const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
-  const [outputPath, setOutputPath] = useState(config.getStored(CONFIG_STORAGE_OUTPUT_PATH, ""));
+  const [outputPath, setOutputPath] = useState("");
   const [pathExists, setPathExists] = useState(true);
-  const [fixerStatus, setFixerStatus] = useState(FIXER_STATUS.ready);
+  const [fixerStatus, setFixerStatus] = useState(FIXER_READY);
 
   useEffect(() => {
     config.subscribe(CONFIG_SUBSCRIPTION_ID, (data) => setMappings(data.configuration.mappings));
+    setFileEntries(config.getStored(CONFIG_STORAGE_FILE_ENTRIES, {}));
+    setOutputPath(config.getStored(CONFIG_STORAGE_OUTPUT_PATH, ""));
     return () => config.unsubscribe(CONFIG_SUBSCRIPTION_ID);
   }, []);
 
@@ -61,17 +61,30 @@ export default function ConvertTab() {
     setFileEntries(newEntries);
   };
 
-  const updateFileEntryStatus = (entryKey, status) => {
-    const newEntries = {
-      ...fileEntries,
-      [entryKey]: {
-        ...fileEntries[entryKey],
-        status
-      }
-    };
+    // We use keyfield to determine the key fieldname in order to make this 
+    // function a bit more versatile in case it's used by something other than
+    // the fixer callbacks
+  const updateFileEntryStatuses = (results, keyField, timeElapsed) => {
+    let oneFailed = false;
+    const newEntries = { ...fileEntries };
+
+    for( let result of results ) {
+      if( !result.wasSuccessful )
+      oneFailed = true;
+
+      newEntries[result[keyField]] = {
+        ...fileEntries[result[keyField]],
+        status: result.wasSuccessful ? ENTRY_STATUS.fixed : ENTRY_STATUS.failed
+      };
+    }
 
     updateFileEntries(newEntries);
     setFileEntries(newEntries);
+
+    if( oneFailed )
+    setFixerStatus(FixerStatus(FIXER_STATUS.failed, "Failed to convert all the files in red!", timeElapsed));
+    else
+    setFixerStatus(FixerStatus(FIXER_STATUS.successful, "Successfully converted all files!", timeElapsed));
   }
 
   const handleImportFiles = () => {
@@ -95,18 +108,10 @@ export default function ConvertTab() {
       mappings
     );
 
+    const time = performance.now();
     Promise.all(promises)
     .then(
-      (result) => {
-        result = result[0];
-        if( result.wasSuccessful ) {
-          updateFileEntryStatus(result.filePath, ENTRY_STATUS.fixed);
-          setFixerStatus(FIXER_STATUS.successful);
-        } else {
-          updateFileEntryStatus(result.filePath, ENTRY_STATUS.failed);
-          setFixerStatus(FIXER_STATUS.failed);
-        }
-      }
+      (results) => updateFileEntryStatuses(results, "filePath", performance.now() - time)
     );
 
     setFixerStatus(FIXER_STATUS.fixing);
@@ -210,7 +215,7 @@ export default function ConvertTab() {
         }
       </div>
       <div>
-        <strong>Status: </strong>{fixerStatus.title}
+        <strong>Status: </strong>{fixerStatus.title + " Time elapsed: " + fixerStatus.timeElapsed + "ms"}
         <h4>Output folder:</h4>
         <p>
           Leave blank to save the fixes in the same folders as the sources.

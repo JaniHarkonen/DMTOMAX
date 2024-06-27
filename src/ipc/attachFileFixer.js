@@ -1,10 +1,9 @@
-function FixResult(wasSuccessful, comment, filePath, outputPath, timeElapsed) {
+function FixResult(wasSuccessful, comment, filePath, outputPath) {
   return {
     wasSuccessful,
     comment,
     filePath,
-    outputPath,
-    timeElapsed
+    outputPath
   };
 }
 
@@ -25,8 +24,6 @@ function FixResult(wasSuccessful, comment, filePath, outputPath, timeElapsed) {
  * joint to their counterparts.
  */
 function fixFile(fs, readline, filePath, outputPath, mappings) {
-  const time = performance.now();
-
   return new Promise((resolve, reject) => {
     const KEYWORD = "JOINT";
     const END = "MOTION";
@@ -77,8 +74,7 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
         false, 
         "Couldn't read the source file! It may not exist.", 
         filePath, 
-        outputFile, 
-        performance.now() - time
+        outputFile
       ));
     });
 
@@ -87,8 +83,7 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
         false,
         "Couldn't write to the output file! Output path may be invalid or the file is used by another process.",
         filePath,
-        outputFile,
-        performance.now() - time
+        outputFile
       ));
     })
 
@@ -98,8 +93,7 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
         true, 
         "Fixed successfully", 
         filePath, 
-        outputFile, 
-        performance.now() - time
+        outputFile
       ));
     });
   });
