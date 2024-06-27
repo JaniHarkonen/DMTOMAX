@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from "react";
 import { GlobalContext } from "../context/GlobalContext";
-import { DEFAULT_CONFIGURATION_SCHEMA } from "../api/configuration";
+import { DEFAULT_CONFIGURATION_SCHEMA, JointMapping } from "../api/configuration";
 
 export default function useMappings(configSubscriptionId) {
   const { config } = useContext(GlobalContext);
-  const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
+  const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA.mappings);
 
   useEffect(() => {
     config.subscribe(configSubscriptionId, (data) => setMappings(data.configuration.mappings));
@@ -19,12 +19,11 @@ export default function useMappings(configSubscriptionId) {
     setMappings(DEFAULT_CONFIGURATION_SCHEMA.mappings);
   };
 
-  const editMapping = (mapKey, value) => {
-    setMappings({
-      ...mappings,
-      [mapKey]: value
-    });
-  }
+  const editMapping = (index, joint, replacement) => {
+    const newMappings = [ ...mappings ];
+    newMappings[index] = JointMapping(joint, replacement);
+    setMappings(newMappings);
+  };
 
   return {
     mappings,

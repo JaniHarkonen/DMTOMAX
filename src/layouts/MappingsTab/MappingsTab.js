@@ -13,7 +13,7 @@ export default function MappingsTab() {
     saveMappings,
     resetMappings,
     editMapping
-  } =  useMappings(CONFIG_SUBSCRIPTION_ID);
+  } = useMappings(CONFIG_SUBSCRIPTION_ID);
 
   const handleSave = () => {
     saveMappings();
@@ -22,34 +22,46 @@ export default function MappingsTab() {
 
   const handleReset = () => {
     resetMappings();
-    setUnsavedChanges({ ...mappings });
+    
+    const changes = {};
+    for( let i = 0; i < mappings.length; i++ )
+    changes[i] = false;
+
+    setUnsavedChanges(changes);
   };
 
-  const handleMappingChange = (mapKey, value) => {
-    editMapping(mapKey, value);
+  const handleMappingEdit = (index, joint, replacement) => {
+    editMapping(index, joint, replacement);
     setUnsavedChanges({
       ...unsavedChanges,
-      [mapKey]: true
+      [index]: true
     });
   };
 
   const renderMappings = (mappings) => {
-    return Object.keys(mappings).map((mapKey) => (
-      <tr key={mapKey}>
-        <td>{mapKey}</td>
-        <td>
-          <input
-            value={mappings[mapKey]}
-            onChange={(e) => handleMappingChange(mapKey, e.target.value)}
-          />
-        </td>
-        <td>
-          <div className="d-flex d-align-items-center">
-            <ChangedMappingWarning hide={!unsavedChanges[mapKey]} />
-          </div>
-        </td>
-      </tr>
-    ));
+    return mappings.map((mapping, index) => {
+      return (
+        <tr key={"mapping-" + index}>
+          <td>
+            <input
+              value={mapping.joint}
+              onChange={(e) => handleMappingEdit(index, e.target.value, mapping.replacement)}
+            />
+          </td>
+          <td>
+            <input
+              value={mapping.replacement}
+              onChange={(e) => handleMappingEdit(index, mapping.joint, e.target.value)}
+            />
+          </td>
+          <td>
+            <div className="d-flex d-align-items-center">
+              <ChangedMappingWarning hide={!unsavedChanges[index]} />
+            </div>
+          </td>
+        </tr>
+      )
+    });
   };
 
   return (
