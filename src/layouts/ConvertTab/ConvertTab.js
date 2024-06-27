@@ -5,7 +5,6 @@ import { ENTRY_STATUS, Entry } from "../../components/FileTableEntry/FileTableEn
 import FixControls from "../../components/FixControls/FixControls";
 import { fixFiles } from "../../api/fixer";
 import { GlobalContext } from "../../context/GlobalContext";
-import { DEFAULT_CONFIGURATION_SCHEMA } from "../../api/configuration";
 import { doesPathExist } from "../../api/miscFS";
 import "./ConvertTab.css";
 import OutputPathWarning from "../../components/OutputPathWarning/OutputPathWarning";
