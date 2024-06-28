@@ -1,63 +1,212 @@
 {
-  "mappings": {
-    "spine_JNT": "Chest",
-    "spine1_JNT": "Chest2",
-    "Chest": "Chest3",
-
-    "LeftUpArm": "LeftShoulder",
-    "LeftLowArm": "LeftElbow",
-  
-    "l_handThumb1_JNT": "LeftFinger0",
-    "l_handThumb2_JNT": "LeftFinger01",
-    "l_handThumb3_JNT": "LeftFinger02",
-  
-    "l_handIndex1_JNT": "LeftFinger1",
-    "l_handIndex2_JNT": "LeftFinger11",
-    "l_handIndex3_JNT": "LeftFinger12",
-    
-    "l_handMiddle1_JNT": "LeftFinger2",
-    "l_handMiddle2_JNT": "LeftFinger21",
-    "l_handMiddle3_JNT": "LeftFinger22",
-    
-    "l_handRing1_JNT": "LeftFinger3",
-    "l_handRing2_JNT": "LeftFinger31",
-    "l_handRing3_JNT": "LeftFinger32",
-    
-    "l_handPinky1_JNT": "LeftFinger4",
-    "l_handPinky2_JNT": "LeftFinger41",
-    "l_handPinky3_JNT": "LeftFinger42",
-    
-    "RightUpArm": "RightShoulder",
-    "RightLowArm": "RightElbow",
-    
-    "r_handThumb1_JNT": "RightFinger0",
-    "r_handThumb2_JNT": "RightFinger01",
-    "r_handThumb3_JNT": "RightFinger02",
-    
-    "r_handIndex1_JNT": "RightFinger1",
-    "r_handIndex2_JNT": "RightFinger11",
-    "r_handIndex3_JNT": "RightFinger12",
-    
-    "r_handMiddle1_JNT": "RightFinger2",
-    "r_handMiddle2_JNT": "RightFinger21",
-    "r_handMiddle3_JNT": "RightFinger22",
-    
-    "r_handRing1_JNT": "RightFinger3",
-    "r_handRing2_JNT": "RightFinger31",
-    "r_handRing3_JNT": "RightFinger32",
-    
-    "r_handPinky1_JNT": "RightFinger4",
-    "r_handPinky2_JNT": "RightFinger41",
-    "r_handPinky3_JNT": "RightFinger42",
-    
-    "LeftUpLeg": "LeftHip",
-    "LeftLowLeg": "LeftKnee",
-    "LeftFoot": "LeftAnkle",
-    "l_toebase_JNT": "LeftToe",
-    
-    "RightUpLeg": "RightHip",
-    "RightLowLeg": "RightKnee",
-    "RightFoot": "RightAnkle",
-    "r_toebase_JNT": "RightToe"
-  }
+  "mappings": [
+    {
+      "joint": "Hip",
+      "replacement": "Hip"
+    },
+    {
+      "joint": "spine_JNT",
+      "replacement": "Chest"
+    },
+    {
+      "joint": "spine1_JNT",
+      "replacement": "Chest2"
+    },
+    {
+      "joint": "Chest",
+      "replacement": "Chest3"
+    },
+    {
+      "joint": "Neck",
+      "replacement": "Neck"
+    },
+    {
+      "joint": "Head",
+      "replacement": "Head"
+    },
+    {
+      "joint": "LeftCollar",
+      "replacement": "LeftCollar"
+    },
+    {
+      "joint": "LeftUpArm",
+      "replacement": "LeftShoulder"
+    },
+    {
+      "joint": "LeftLowArm",
+      "replacement": "LeftElbow"
+    },
+    {
+      "joint": "LeftHand",
+      "replacement": "LeftHand"
+    },
+    {
+      "joint": "l_handThumb1_JNT",
+      "replacement": "LeftFinger0"
+    },
+    {
+      "joint": "l_handThumb2_JNT",
+      "replacement": "LeftFinger01"
+    },
+    {
+      "joint": "l_handThumb3_JNT",
+      "replacement": "LeftFinger02"
+    },
+    {
+      "joint": "l_handIndex1_JNT",
+      "replacement": "LeftFinger1"
+    },
+    {
+      "joint": "l_handIndex2_JNT",
+      "replacement": "LeftFinger11"
+    },
+    {
+      "joint": "l_handIndex3_JNT",
+      "replacement": "LeftFinger12"
+    },
+    {
+      "joint": "l_handMiddle1_JNT",
+      "replacement": "LeftFinger2"
+    },
+    {
+      "joint": "l_handMiddle2_JNT",
+      "replacement": "LeftFinger21"
+    },
+    {
+      "joint": "l_handMiddle3_JNT",
+      "replacement": "LeftFinger22"
+    },
+    {
+      "joint": "l_handRing1_JNT",
+      "replacement": "LeftFinger3"
+    },
+    {
+      "joint": "l_handRing2_JNT",
+      "replacement": "LeftFinger31"
+    },
+    {
+      "joint": "l_handRing3_JNT",
+      "replacement": "LeftFinger32"
+    },
+    {
+      "joint": "l_handPinky1_JNT",
+      "replacement": "LeftFinger4"
+    },
+    {
+      "joint": "l_handPinky2_JNT",
+      "replacement": "LeftFinger41"
+    },
+    {
+      "joint": "l_handPinky3_JNT",
+      "replacement": "LeftFinger42"
+    },
+    {
+      "joint": "RightCollar",
+      "replacement": "RightCollar"
+    },
+    {
+      "joint": "RightUpArm",
+      "replacement": "RightShoulder"
+    },
+    {
+      "joint": "RightLowArm",
+      "replacement": "RightElbow"
+    },
+    {
+      "joint": "RightHand",
+      "replacement": "RightHand"
+    },
+    {
+      "joint": "r_handThumb1_JNT",
+      "replacement": "RightFinger0"
+    },
+    {
+      "joint": "r_handThumb2_JNT",
+      "replacement": "RightFinger01"
+    },
+    {
+      "joint": "r_handThumb3_JNT",
+      "replacement": "RightFinger02"
+    },
+    {
+      "joint": "r_handIndex1_JNT",
+      "replacement": "RightFinger1"
+    },
+    {
+      "joint": "r_handIndex2_JNT",
+      "replacement": "RightFinger11"
+    },
+    {
+      "joint": "r_handIndex3_JNT",
+      "replacement": "RightFinger12"
+    },
+    {
+      "joint": "r_handMiddle1_JNT",
+      "replacement": "RightFinger2"
+    },
+    {
+      "joint": "r_handMiddle2_JNT",
+      "replacement": "RightFinger21"
+    },
+    {
+      "joint": "r_handMiddle3_JNT",
+      "replacement": "RightFinger22"
+    },
+    {
+      "joint": "r_handRing1_JNT",
+      "replacement": "RightFinger3"
+    },
+    {
+      "joint": "r_handRing2_JNT",
+      "replacement": "RightFinger31"
+    },
+    {
+      "joint": "r_handRing3_JNT",
+      "replacement": "RightFinger32"
+    },
+    {
+      "joint": "r_handPinky1_JNT",
+      "replacement": "RightFinger4"
+    },
+    {
+      "joint": "r_handPinky2_JNT",
+      "replacement": "RightFinger41"
+    },
+    {
+      "joint": "r_handPinky3_JNT",
+      "replacement": "RightFinger42"
+    },
+    {
+      "joint": "LeftUpLeg",
+      "replacement": "LeftHip"
+    },
+    {
+      "joint": "LeftLowLeg",
+      "replacement": "LeftKnee"
+    },
+    {
+      "joint": "LeftFoot",
+      "replacement": "LeftAnkle"
+    },
+    {
+      "joint": "l_toebase_JNT",
+      "replacement": "LeftToe"
+    },
+    {
+      "joint": "RightUpLeg",
+      "replacement": "RightHip"
+    },
+    {
+      "joint": "RightLowLeg",
+      "replacement": "RightKnee"
+    },
+    {
+      "joint": "RightFoot",
+      "replacement": "RightAnkle"
+    },
+    {
+      "joint": "r_toebase_JNT",
+      "replacement": "RightToe"
+    }
+  ]
 }

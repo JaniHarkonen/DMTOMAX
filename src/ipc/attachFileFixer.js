@@ -25,20 +25,37 @@ function FixResult(wasSuccessful, comment, filePath, outputPath) {
  */
 function fixFile(fs, readline, filePath, outputPath, mappings) {
   return new Promise((resolve, reject) => {
-    const KEYWORD = "JOINT";
-    const END = "MOTION";
 
+      // Open read and write streams
     const writer = fs.createWriteStream(outputPath, { flags: "w" });
     const reader = readline.createInterface({
       input: fs.createReadStream(filePath),
       crlfDelay: Infinity
     });
 
+      // Called when the fixer has a result
     const produceResult = (wasSuccessful, comment) => {
       return FixResult(wasSuccessful, comment, filePath, outputPath);
-    }
+    };
+
+      // Parsers coupled with the keywords that trigger them
+    const lineProcessors = {
+      ROOT: (context) => {
+        const { spaceIndex, trimmed } = context;
+        const candidate = trimmed.substring(spaceIndex + 1);
+        writer.write("ROOT " + mappings[candidate] + "\n");
+      },
+      JOINT: (context) => {
+        const { fullLine, trimmed, spaceIndex } = context;
+        const candidate = trimmed.substring(spaceIndex + 1);
+        const mapping = mappings[candidate];
+        const beginning = fullLine.substring(0, spaceIndex + (fullLine.length - trimmed.length));
+        writer.write(beginning + " " + mapping + "\n");
+      }
+    };
     
       // Read and write line-by-line to preserve memory
+    const END = "MOTION";
     let endEncountered = false;
     reader.on("line", (line) => {
 
@@ -51,11 +68,15 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
 
       const trimmed = line.trim();
       const spaceIndex = trimmed.indexOf(" ");
-
+      const keyword = trimmed.substring(0, spaceIndex);
+      /*
       if( spaceIndex != -1 ) {
         const jointString = trimmed.substring(0, spaceIndex);
-        
-        if( jointString === KEYWORD ) {
+
+        if( jointString === ROOT ) {
+          writer.write(jointString + " " +  + "\n");
+          return;
+        } else if( jointString === JOINT ) {
           const candidate = trimmed.substring(spaceIndex + 1);
           const mapping = mappings[candidate];
 
@@ -66,8 +87,15 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
             return;
           }
         }
+      }*/
+      if( lineProcessors[keyword] ) {
+        lineProcessors[keyword]({
+          fullLine: line,
+          trimmed,
+          spaceIndex
+        });
       }
-
+      else
       writer.write(line + "\n");
     });
 

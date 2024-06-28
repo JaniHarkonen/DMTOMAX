@@ -7,12 +7,17 @@ export function JointMapping(joint, replacement) {
 
 export const DEFAULT_CONFIGURATION_SCHEMA = {
   "mappings": [
+    JointMapping("Hip", "Hip"),
     JointMapping("spine_JNT", "Chest"),
     JointMapping("spine1_JNT", "Chest2"),
     JointMapping("Chest", "Chest3"),
+    JointMapping("Neck", "Neck"),
+    JointMapping("Head", "Head"),
 
+    JointMapping("LeftCollar", "LeftCollar"),
     JointMapping("LeftUpArm", "LeftShoulder"),
     JointMapping("LeftLowArm", "LeftElbow"),
+    JointMapping("LeftHand", "LeftHand"),
   
     JointMapping("l_handThumb1_JNT", "LeftFinger0"),
     JointMapping("l_handThumb2_JNT", "LeftFinger01"),
@@ -34,8 +39,10 @@ export const DEFAULT_CONFIGURATION_SCHEMA = {
     JointMapping("l_handPinky2_JNT", "LeftFinger41"),
     JointMapping("l_handPinky3_JNT", "LeftFinger42"),
     
+    JointMapping("RightCollar", "RightCollar"),
     JointMapping("RightUpArm", "RightShoulder"),
     JointMapping("RightLowArm", "RightElbow"),
+    JointMapping("RightHand", "RightHand"),
     
     JointMapping("r_handThumb1_JNT", "RightFinger0"),
     JointMapping("r_handThumb2_JNT", "RightFinger01"),
