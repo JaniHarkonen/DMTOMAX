@@ -45,8 +45,8 @@
     "wait-on": "^7.2.0"
   },
   "build": {
-     "appId": "com.electron.myapp",
-     "productName": "My Electron App",
+     "appId": "dmtomax",
+     "productName": "DMTOMAX",
      "files": ["build/**/*", "node_modules/**/*"],
      "directories": {
        "buildResources": "public"

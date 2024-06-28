@@ -1,10 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import './index.css';
-import './global.css';
 import DMTOMAX from './DMTOMAX';
 import { GlobalContext } from "./context/GlobalContext";
 import { Config } from './api/configuration';
+import './index.css';
+import './global.css';
 
 const ipcRenderer = window.require("electron").ipcRenderer;
 const config = new Config(ipcRenderer, process.cwd() + "\\config.json");
