@@ -1,10 +1,9 @@
-function FixResult(wasSuccessful, comment, filePath, outputPath, timeElapsed) {
+function FixResult(wasSuccessful, comment, filePath, outputPath) {
   return {
     wasSuccessful,
     comment,
     filePath,
-    outputPath,
-    timeElapsed
+    outputPath
   };
 }
 
@@ -25,21 +24,39 @@ function FixResult(wasSuccessful, comment, filePath, outputPath, timeElapsed) {
  * joint to their counterparts.
  */
 function fixFile(fs, readline, filePath, outputPath, mappings) {
-  const time = performance.now();
-
   return new Promise((resolve, reject) => {
-    const KEYWORD = "JOINT";
-    const END = "MOTION";
 
+      // Open read and write streams
     const writer = fs.createWriteStream(outputPath, { flags: "w" });
     const reader = readline.createInterface({
       input: fs.createReadStream(filePath),
       crlfDelay: Infinity
     });
 
-    let endEncountered = false;
+      // Called when the fixer has a result
+    const produceResult = (wasSuccessful, comment) => {
+      return FixResult(wasSuccessful, comment, filePath, outputPath);
+    };
+
+      // Parsers coupled with the keywords that trigger them
+    const lineProcessors = {
+      ROOT: (context) => {
+        const { spaceIndex, trimmed } = context;
+        const candidate = trimmed.substring(spaceIndex + 1);
+        writer.write("ROOT " + mappings[candidate] + "\n");
+      },
+      JOINT: (context) => {
+        const { fullLine, trimmed, spaceIndex } = context;
+        const candidate = trimmed.substring(spaceIndex + 1);
+        const mapping = mappings[candidate];
+        const beginning = fullLine.substring(0, spaceIndex + (fullLine.length - trimmed.length));
+        writer.write(beginning + " " + mapping + "\n");
+      }
+    };
     
       // Read and write line-by-line to preserve memory
+    const END = "MOTION";
+    let endEncountered = false;
     reader.on("line", (line) => {
 
         // Quick exit if the rest of the file is an exact copy of the target file
@@ -51,56 +68,36 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
 
       const trimmed = line.trim();
       const spaceIndex = trimmed.indexOf(" ");
+      const keyword = trimmed.substring(0, spaceIndex);
 
-      if( spaceIndex != -1 ) {
-        const jointString = trimmed.substring(0, spaceIndex);
-        
-        if( jointString === KEYWORD ) {
-          const candidate = trimmed.substring(spaceIndex + 1);
-          const mapping = mappings[candidate];
-
-          if( mapping ) {
-            const beginning = line.substring(0, spaceIndex + (line.length - trimmed.length));
-            writer.write(beginning + " " + mapping + "\n");
-
-            return;
-          }
-        }
+      if( lineProcessors[keyword] ) {
+        lineProcessors[keyword]({
+          fullLine: line,
+          trimmed,
+          spaceIndex
+        });
       }
-
+      else
       writer.write(line + "\n");
     });
 
     reader.on("error", (err) => {
       writer.close();
-      resolve(FixResult(
+      resolve(produceResult(false, "Couldn't read the source file! It may not exist."));
+    });
+
+    writer.on("error", (err) => {
+      writer.close();
+      resolve(produceResult(
         false, 
-        "Couldn't read the source file! It may not exist.", 
-        filePath, 
-        outputFile, 
-        performance.now() - time
+        "Couldn't write to the output file!" + 
+        "Output path may be invalid or the file is used by another process."
       ));
     });
 
-    writer.on("error", () => {
-      resolve(FixResult(
-        false,
-        "Couldn't write to the output file! Output path may be invalid or the file is used by another process.",
-        filePath,
-        outputFile,
-        performance.now() - time
-      ));
-    })
-
     reader.on("close", () => {
       writer.close();
-      resolve(FixResult(
-        true, 
-        "Fixed successfully", 
-        filePath, 
-        outputFile, 
-        performance.now() - time
-      ));
+      resolve(produceResult(true, "Fixed successfully"));
     });
   });
 }
@@ -121,4 +118,4 @@ function attachFileFixer(ipcMain, electron) {
   });
 }
 
-exports.attachFileFixer = attachFileFixer;
+module.exports.attachFileFixer = attachFileFixer;

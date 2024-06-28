@@ -5,14 +5,15 @@ const url = require("url");
 const fs = require("fs");
 const readline = require("readline");
 const fsPromises = fs.promises;
-const { attachDialogHandler } = require("../src/ipc/attachDialogHandler");
-const { attachFSHandler } = require("../src/ipc/attachFSHandler");
-const { attachFileFixer } = require("../src/ipc/attachFileFixer");
+const { attachDialogHandler } = require("./ipc/attachDialogHandler");
+const { attachFSHandler } = require("./ipc/attachFSHandler");
+const { attachFileFixer } = require("./ipc/attachFileFixer");
  
 function createWindow() {
   const mainWindow = new BrowserWindow({
-    width: 575,
+    width: 600,
     height: 600,
+    icon: __dirname + "/icon.png",
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
@@ -26,6 +27,11 @@ function createWindow() {
         slashes: true,
       })
     : "http://localhost:3000";
+
+  if( app.isPackaged ) {
+    mainWindow.removeMenu();
+  }
+
   mainWindow.loadURL(appURL);
   
   if (!app.isPackaged) {

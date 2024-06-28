@@ -1,71 +1,67 @@
-import { useContext, useEffect, useState } from "react"
-import { GlobalContext } from "../../context/GlobalContext"
-import { DEFAULT_CONFIGURATION_SCHEMA } from "../../api/configuration";
-import imgWarning from "../../assets/exclamation-triangle-icon.svg";
+import { useState } from "react"
+import ChangedMappingWarning from "../../components/ChangedMappingWarning/ChangedMappingWarning";
 import "./MappingsTab.css";
+import useMappings from "../../hooks/useMappings";
 
 const CONFIG_SUBSCRIPTION_ID = "mappings-tab";
 
 export default function MappingsTab() {
-  const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA.mappings);
   const [unsavedChanges, setUnsavedChanges] = useState({});
-  const { config } = useContext(GlobalContext);
 
-  useEffect(() => {
-    config.subscribe(CONFIG_SUBSCRIPTION_ID, (data) => setMappings(data.configuration.mappings));
-    return () => config.unsubscribe(CONFIG_SUBSCRIPTION_ID);
-  }, []);
+  const {
+    mappings,
+    saveMappings,
+    resetMappings,
+    editMapping
+  } = useMappings(CONFIG_SUBSCRIPTION_ID);
 
   const handleSave = () => {
-    config.updateMappings(mappings);
+    saveMappings();
     setUnsavedChanges({});
   };
 
   const handleReset = () => {
-    setMappings(DEFAULT_CONFIGURATION_SCHEMA.mappings);
-    setUnsavedChanges({ ...mappings });
+    resetMappings();
+    
+    const changes = {};
+    for( let i = 0; i < mappings.length; i++ )
+    changes[i] = true;
+
+    setUnsavedChanges(changes);
   };
 
-  const handleMappingChange = (mapKey, value) => {
-    setMappings({
-      ...mappings,
-      [mapKey]: value
-    });
+  const handleMappingEdit = (index, joint, replacement) => {
+    editMapping(index, joint, replacement);
     setUnsavedChanges({
       ...unsavedChanges,
-      [mapKey]: true
+      [index]: true
     });
   };
 
   const renderMappings = (mappings) => {
-    return Object.keys(mappings).map((mapKey) => (
-      <tr key={mapKey}>
-        <td>{mapKey}</td>
-        <td>
-          <input
-            value={mappings[mapKey]}
-            onChange={(e) => handleMappingChange(mapKey, e.target.value)}
-          />
-        </td>
-        <td>
-          <div className="d-flex d-align-items-center">
-            {unsavedChanges[mapKey] && renderChangedWarning()}
-          </div>
-        </td>
-      </tr>
-    ));
-  };
-
-  const renderChangedWarning = () => {
-    return (
-      <div>
-        <img
-          className="warning-icon"
-          src={imgWarning}
-        />
-        Unsaved changes!
-      </div>
-    )
+    return mappings.map((mapping, index) => {
+      return (
+        <tr key={"mapping-" + index}>
+          <td>
+            <input
+              value={mapping.joint}
+              onChange={(e) => handleMappingEdit(index, e.target.value, mapping.replacement)}
+            />
+          </td>
+          <td>
+            <input
+              value={mapping.replacement}
+              onChange={(e) => handleMappingEdit(index, mapping.joint, e.target.value)}
+            />
+          </td>
+          <td>
+            <div className="d-flex d-align-items-center">
+              <ChangedMappingWarning hide={!unsavedChanges[index]} />
+            </div>
+          </td>
+        </tr>
+      )
+    });
   };
 
   return (
@@ -76,7 +72,9 @@ export default function MappingsTab() {
           <button onClick={handleSave}>Save</button>
           <button onClick={handleReset}>Reset</button>
         </div>
-        {Object.keys(unsavedChanges).length > 0 && renderChangedWarning()}
+        <ChangedMappingWarning
+          hide={Object.keys(unsavedChanges).length === 0}
+        />
       </div>
       <div>
         <table>

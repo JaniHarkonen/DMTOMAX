@@ -1,115 +1,68 @@
 import { useContext, useEffect, useState } from "react";
-import { FilesysDialogSettings, showOpenDirectory, showOpenFile } from "../../api/fileSystemDialog";
+import { FilesysDialogSettings, showOpenDirectory } from "../../api/fileSystemDialog";
 import FileTable from "../../components/FileTable/FileTable";
-import { ENTRY_STATUS, Entry } from "../../components/FileTableEntry/FileTableEntry";
 import FixControls from "../../components/FixControls/FixControls";
-import { fixFiles } from "../../api/fixer";
 import { GlobalContext } from "../../context/GlobalContext";
-import { DEFAULT_CONFIGURATION_SCHEMA } from "../../api/configuration";
 import { doesPathExist } from "../../api/miscFS";
-import imgWarning from "../../assets/exclamation-triangle-icon.svg"
 import "./ConvertTab.css";
+import OutputPathWarning from "../../components/OutputPathWarning/OutputPathWarning";
+import useMappings from "../../hooks/useMappings";
+import { FIXER_STATUS } from "../../api/fixer";
+import useFileEntries from "../../hooks/useFileEntries";
 
-const FIXER_STATUS = {
-  ready: {
-    status: "ready",
-    title: "Ready!"
-  },
-  fixing: {
-    status: "fixing",
-    title: "Fixing..."
-  },
-  successful: {
-    status: "successful",
-    title: "Fixed all files successfully!"
-  },
-  failed: {
-    status: "failed",
-    title: "Failed to fix all files in red!"
+export function FixerStatus(status, title, timeElapsed = 0) {
+  return {
+    status,
+    title,
+    timeElapsed
+  };
+}
+
+function fileEntriesToArray(entries) {
+  const array = [];
+
+  for( let key of Object.keys(entries) ) {
+    array.push(entries[key]);
   }
-};
 
-const CONFIG_SUBSCRIPTION_ID = "convert-tab";
-const CONFIG_STORAGE_FILE_ENTRIES = "conversion-file-entries";
-const CONFIG_STORAGE_OUTPUT_PATH = "conversion-output-path";
+  return array;
+}
+
+const FIXER_READY = FixerStatus(FIXER_STATUS.ready, "Ready!");
 
 export default function ConvertTab() {
+  const CONFIG_SUBSCRIPTION_ID = "convert-tab";
+  const CONFIG_STORAGE_FILE_ENTRIES = "conversion-file-entries";
+  const CONFIG_STORAGE_OUTPUT_PATH = "conversion-output-path";
+
   const { config } = useContext(GlobalContext);
-  const [fileEntries, setFileEntries] = useState(config.getStored(CONFIG_STORAGE_FILE_ENTRIES, {}));
-  const [mappings, setMappings] = useState(DEFAULT_CONFIGURATION_SCHEMA);
-  const [outputPath, setOutputPath] = useState(config.getStored(CONFIG_STORAGE_OUTPUT_PATH, ""));
+  const [outputPath, setOutputPath] = useState("");
   const [pathExists, setPathExists] = useState(true);
-  const [fixerStatus, setFixerStatus] = useState(FIXER_STATUS.ready);
+  const [fixerStatus, setFixerStatus] = useState(FIXER_READY);
+
+  const { mappings } = useMappings(CONFIG_SUBSCRIPTION_ID);
+
+  const { fileEntries, updateFileEntries, updateFileEntryStatuses } = useFileEntries(CONFIG_STORAGE_FILE_ENTRIES);
 
   useEffect(() => {
-    config.subscribe(CONFIG_SUBSCRIPTION_ID, (data) => setMappings(data.configuration.mappings));
-    return () => config.unsubscribe(CONFIG_SUBSCRIPTION_ID);
+    setOutputPath(config.getStored(CONFIG_STORAGE_OUTPUT_PATH, ""));
   }, []);
 
-  const updateFileEntries = (entries) => {
-    config.store(CONFIG_STORAGE_FILE_ENTRIES, entries);
-  }
-
-  const handleFileEntries = (entries) => {
-    const newEntries = {};
-
-    for( let entry of entries ) {
-      newEntries[entry.filePath] = entry;
-    }
-
-    updateFileEntries(newEntries);
-    setFileEntries(newEntries);
-  };
-
-  const updateFileEntryStatus = (entryKey, status) => {
-    const newEntries = {
-      ...fileEntries,
-      [entryKey]: {
-        ...fileEntries[entryKey],
-        status
-      }
-    };
-
-    updateFileEntries(newEntries);
-    setFileEntries(newEntries);
-  }
-
-  const handleImportFiles = () => {
-    const settings = FilesysDialogSettings();
-    settings.multiSelections = true;
-
-    showOpenFile(settings, (response) => {
-      if( !response.canceled )
-      handleFileEntries(response.filePaths.map((file) => Entry(file, false, ENTRY_STATUS.unfixed)));
-    });
-  };
-
-  const handleFixFiles = (entries) => {
-    if( entries.length == 0 || !pathExists ) {
-      return;
-    }
-
-    const promises = fixFiles(
-      entries.map((entry) => entry.filePath),
-      outputPath,
-      mappings
-    );
-
-    Promise.all(promises)
-    .then(
-      (result) => {
-        result = result[0];
-        if( result.wasSuccessful ) {
-          updateFileEntryStatus(result.filePath, ENTRY_STATUS.fixed);
-          setFixerStatus(FIXER_STATUS.successful);
-        } else {
-          updateFileEntryStatus(result.filePath, ENTRY_STATUS.failed);
-          setFixerStatus(FIXER_STATUS.failed);
-        }
+  const handleFix = (results, keyField, timeElapsed) => {
+    updateFileEntryStatuses(
+      results,
+      keyField,
+      () => {
+        setFixerStatus(FixerStatus(
+          FIXER_STATUS.failed, "Failed to convert all the files in red!", timeElapsed
+        ))
+      },
+      () => {
+        setFixerStatus(FixerStatus(
+          FIXER_STATUS.successful, "Successfully converted all files!", timeElapsed
+        ))
       }
     );
-
-    setFixerStatus(FIXER_STATUS.fixing);
   };
 
   const handleRemoveFiles = (entries) => {
@@ -126,7 +79,7 @@ export default function ConvertTab() {
       currentPointer++;
     }
 
-    handleFileEntries(filteredEntries);
+    updateFileEntries(filteredEntries);
   };
 
   const handleOutputSelection = () => {
@@ -156,9 +109,13 @@ export default function ConvertTab() {
       <FixControls
         getAllEntries={getAllEntries}
         getSelectedEntries={getSelectedEntries}
-        onImport={handleImportFiles}
-        onFix={handleFixFiles}
+        onImport={updateFileEntries}
+        onFix={handleFix}
+        onWait={() => setFixerStatus(FIXER_STATUS.fixing)}
         onRemove={handleRemoveFiles}
+        outputPath={outputPath}
+        mappings={mappings}
+        canFix={pathExists}
       />
     );
   };
@@ -170,31 +127,6 @@ export default function ConvertTab() {
       </div>
     );
   };
-
-  const renderOutputPathWarning = () => {
-    if( pathExists )
-    return <><p></p></>;
-
-    return (
-      <div className="d-flex d-align-items-center">
-        <img
-          className="warning-icon"
-          src={imgWarning}
-        />
-        Warning! Output directory doesn't exist.
-      </div>
-    );
-  };
-
-  const fileEntriesToArray = (entries) => {
-    const array = [];
-
-    for( let key of Object.keys(entries) ) {
-      array.push(entries[key]);
-    }
-
-    return array;
-  }
 
   return (
     <div>
@@ -210,7 +142,7 @@ export default function ConvertTab() {
         }
       </div>
       <div>
-        <strong>Status: </strong>{fixerStatus.title}
+        <strong>Status: </strong>{fixerStatus.title + " Time elapsed: " + fixerStatus.timeElapsed + "ms"}
         <h4>Output folder:</h4>
         <p>
           Leave blank to save the fixes in the same folders as the sources.
@@ -225,7 +157,7 @@ export default function ConvertTab() {
         >
           {"..."}
         </button>
-        { renderOutputPathWarning() }
+        <OutputPathWarning hide={pathExists} />
       </div>
     </div>
   );

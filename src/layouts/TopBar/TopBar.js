@@ -1,4 +1,5 @@
 import "./TopBar.css";
+
 export default function TopBar(props) {
   const topLevelTabs = props.tabs || [];
   const onTabSelect = props.onTabSelect || function(tab) { };

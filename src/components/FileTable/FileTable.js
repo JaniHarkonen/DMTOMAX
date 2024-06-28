@@ -75,8 +75,6 @@ export default function FileTable(props) {
     return true;
   };
 
-  console.log(fileEntries);
-
   const renderEntries = (entries) => {
     const entryElements = entries.map((entry, index) => {
       return (
