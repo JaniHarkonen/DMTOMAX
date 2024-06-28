@@ -19,4 +19,4 @@ function attachDialogHandler(ipcMain, dialog) {
   });
 }
 
-exports.attachDialogHandler = attachDialogHandler;
+module.exports.attachDialogHandler = attachDialogHandler;

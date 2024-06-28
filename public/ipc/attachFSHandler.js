@@ -23,4 +23,4 @@ const stringifyJson = (json) => {
   return JSON.stringify(json, null, 2);
 };
 
-exports.attachFSHandler = attachFSHandler;
+module.exports.attachFSHandler = attachFSHandler;

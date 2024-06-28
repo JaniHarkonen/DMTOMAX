@@ -69,25 +69,7 @@ function fixFile(fs, readline, filePath, outputPath, mappings) {
       const trimmed = line.trim();
       const spaceIndex = trimmed.indexOf(" ");
       const keyword = trimmed.substring(0, spaceIndex);
-      /*
-      if( spaceIndex != -1 ) {
-        const jointString = trimmed.substring(0, spaceIndex);
 
-        if( jointString === ROOT ) {
-          writer.write(jointString + " " +  + "\n");
-          return;
-        } else if( jointString === JOINT ) {
-          const candidate = trimmed.substring(spaceIndex + 1);
-          const mapping = mappings[candidate];
-
-          if( mapping ) {
-            const beginning = line.substring(0, spaceIndex + (line.length - trimmed.length));
-            writer.write(beginning + " " + mapping + "\n");
-
-            return;
-          }
-        }
-      }*/
       if( lineProcessors[keyword] ) {
         lineProcessors[keyword]({
           fullLine: line,
@@ -136,4 +118,4 @@ function attachFileFixer(ipcMain, electron) {
   });
 }
 
-exports.attachFileFixer = attachFileFixer;
+module.exports.attachFileFixer = attachFileFixer;
