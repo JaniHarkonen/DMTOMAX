@@ -28,3 +28,24 @@ The program logic is simple: the imported files will be iterated through, and al
 if the **joint** *spine_JNT* is mapped to the **replacement** *Chest*, all instance of the *spine_JNT*-joint will be 
 replaced with *Chest*. When mappings are edited, the changes have to be saved via the **Save**-button. You can also
 restore the default configuration by clicking **Reset**, however the reset has to be saved as well.
+
+## Installation
+
+### Installers
+Checkout the downloads folder for all available DMtoMax installers if you simply want to download the installer without
+the source code. Currently, there's only a Windows installer.
+
+### Source code
+If you want to run the project on your own, simply fork or clone the repository. Using `yarn` as the package manager is
+recommended as some people have reported having issues with using `npm` in conjunction with `Electron` (I'm not sure
+if this is still the case, however :/). Simply use the `yarn`-command to install all the dependencies, and 
+`yarn electron:start` to run the application in development mode.
+
+### Packaging
+Use `yarn electron:package:win` to package for Windows.
+Use `yarn electron:package:mac` to package for MacOS.
+Use `yarn electron:package:linux` to package for Linux.
+
+## Contribution
+I will most likely not accept any pull requests, but feel free to fork the repository. Also, no credit is required 
+in case of a fork, but would be appreciated ;)

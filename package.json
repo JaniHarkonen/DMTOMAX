@@ -49,7 +49,7 @@
   },
   "build": {
      "appId": "dmtomax",
-     "productName": "DMTOMAX",
+     "productName": "DMtoMax",
      "files": ["build/**/*", "node_modules/**/*"],
      "directories": {
        "buildResources": "public"
