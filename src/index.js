@@ -1,8 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import DMTOMAX from './DMTOMAX';
+
 import { GlobalContext } from "./context/GlobalContext";
 import { Config } from './api/configuration';
+
 import './index.css';
 import './global.css';
 

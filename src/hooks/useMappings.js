@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+
 import { GlobalContext } from "../context/GlobalContext";
 import { DEFAULT_CONFIGURATION_SCHEMA, JointMapping } from "../api/configuration";
 
@@ -9,7 +10,7 @@ export default function useMappings(configSubscriptionId) {
   useEffect(() => {
     config.subscribe(configSubscriptionId, (data) => setMappings(data.configuration.mappings));
     return () => config.unsubscribe(configSubscriptionId);
-  }, [config]);
+  }, [config, configSubscriptionId]);
 
   const saveMappings = () => {
     config.updateMappings(mappings);

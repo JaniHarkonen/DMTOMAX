@@ -1,14 +1,18 @@
 import { useContext, useEffect, useState } from "react";
-import { FilesysDialogSettings, showOpenDirectory } from "../../api/fileSystemDialog";
+
 import FileTable from "../../components/FileTable/FileTable";
 import FixControls from "../../components/FixControls/FixControls";
+import OutputPathWarning from "../../components/OutputPathWarning/OutputPathWarning";
+
 import { GlobalContext } from "../../context/GlobalContext";
 import { doesPathExist } from "../../api/miscFS";
-import "./ConvertTab.css";
-import OutputPathWarning from "../../components/OutputPathWarning/OutputPathWarning";
-import useMappings from "../../hooks/useMappings";
+import { FilesysDialogSettings, showOpenDirectory } from "../../api/fileSystemDialog";
 import { FIXER_STATUS } from "../../api/fixer";
+
+import useMappings from "../../hooks/useMappings";
 import useFileEntries from "../../hooks/useFileEntries";
+
+import "./ConvertTab.css";
 
 export function FixerStatus(status, title, timeElapsed = 0) {
   return {
@@ -46,7 +50,7 @@ export default function ConvertTab() {
 
   useEffect(() => {
     setOutputPath(config.getStored(CONFIG_STORAGE_OUTPUT_PATH, ""));
-  }, []);
+  }, [config]);
 
   const handleFix = (results, keyField, timeElapsed) => {
     updateFileEntryStatuses(

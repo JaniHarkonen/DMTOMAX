@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+
 import { GlobalContext } from "../context/GlobalContext";
 import { ENTRY_STATUS } from "../components/FileTableEntry/FileTableEntry";
 
@@ -8,7 +9,7 @@ export default function useFileEntries(configStorageFileEntries) {
 
   useEffect(() => {
     setFileEntries(config.getStored(configStorageFileEntries, {}));
-  }, [config]);
+  }, [config, configStorageFileEntries]);
 
   const updateFileEntries = (entries) => {
     const newEntries = {};
