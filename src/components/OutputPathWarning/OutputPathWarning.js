@@ -10,7 +10,7 @@ export default function OutputPathWarning(props) {
       <img
         className="warning-icon"
         src={imgWarning}
-        alt=""
+        alt="Warning! Invalid output path!"
       />
       Warning! Output directory doesn't exist.
     </div>

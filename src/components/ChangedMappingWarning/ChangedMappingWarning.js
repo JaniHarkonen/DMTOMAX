@@ -10,6 +10,7 @@ export default function ChangedMappingWarning(props) {
       <img
         className="warning-icon"
         src={imgWarning}
+        alt="Warning! Mapping changed!"
       />
       Unsaved changes!
     </div>

@@ -1,7 +1,7 @@
 import { useState } from "react"
 import ChangedMappingWarning from "../../components/ChangedMappingWarning/ChangedMappingWarning";
-import "./MappingsTab.css";
 import useMappings from "../../hooks/useMappings";
+import "./MappingsTab.css";
 
 const CONFIG_SUBSCRIPTION_ID = "mappings-tab";
 

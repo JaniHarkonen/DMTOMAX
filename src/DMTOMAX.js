@@ -1,6 +1,7 @@
+import { useState } from "react";
+
 import TopBar from "./layouts/TopBar/TopBar";
 import { DMTOMAXTabs } from "./model/appTabs";
-import { useState } from "react";
 import "./DMTOMAX.css";
 
 export default function DMTOMAX() {

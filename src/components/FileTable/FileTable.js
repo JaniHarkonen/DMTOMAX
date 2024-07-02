@@ -65,7 +65,7 @@ export default function FileTable(props) {
   };
 
   const areAllSelected = () => {
-    if( fileEntries.length == 0 )
+    if( fileEntries.length === 0 )
     return false;
   
     for( let i = 0; i < fileEntries.length; i++ ) {
